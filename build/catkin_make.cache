@@ -1,0 +1,2 @@
+mission_node:quadrotor_msgs:vins_to_mavros
+-DCATKIN_DEVEL_PREFIX=/home/ek/RoboCup_2025/devel -DCMAKE_INSTALL_PREFIX=/home/ek/RoboCup_2025/install -G Unix Makefiles

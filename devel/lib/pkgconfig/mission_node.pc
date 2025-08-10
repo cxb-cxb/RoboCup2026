@@ -1,0 +1,8 @@
+prefix=/home/ek/RoboCup_2025/devel
+
+Name: mission_node
+Description: Description of mission_node
+Version: 0.0.0
+Cflags: -I/home/ek/RoboCup_2025/devel/include
+Libs: -L${prefix}/lib 
+Requires: 

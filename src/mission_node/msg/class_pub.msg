@@ -1,0 +1,2 @@
+string classify_class
+int16 confidence
