@@ -45,6 +45,16 @@ class MissionFSM
         double getLengthBetweenPoints(geometry_msgs::Point a, geometry_msgs::Point b,
             double *out_err_x = nullptr, double *out_err_y = nullptr, double *out_err_z = nullptr);
         float constrain(float value, float min_val, float max_val);
+
+        double getYawDifference(const geometry_msgs::Quaternion& quat1, 
+                            const geometry_msgs::Quaternion& quat2);
+
+        double getAbsYawDifference(const geometry_msgs::Quaternion& quat1, 
+                                const geometry_msgs::Quaternion& quat2);
+
+        double getYawDifferenceDegrees(const geometry_msgs::Quaternion& quat1, 
+                                    const geometry_msgs::Quaternion& quat2);
+
         ros::Publisher position_pub;
         ros::Publisher takeoff_land_pub;
         ros::Publisher pos_pub;
@@ -81,7 +91,7 @@ class MissionFSM
         geometry_msgs::PoseStamped land_left;
         geometry_msgs::PoseStamped land_point;
         geometry_msgs::PoseStamped Debug_point;
-        geometry_msgs::PoseStamped change_yaw;
+        // geometry_msgs::PoseStamped change_yaw;
         geometry_msgs::PoseStamped cross_01;
         geometry_msgs::PoseStamped cross_circle;
         geometry_msgs::PoseStamped hight_point;//用于投货完成后回到1.2米的高度
@@ -99,7 +109,8 @@ class MissionFSM
         geometry_msgs::PoseStamped cross_land_point;
         geometry_msgs::PoseStamped change_yaw_point;
         mavros_msgs::PositionTarget Obj_vel; 
-
+        geometry_msgs::PoseStamped drop_finish_point;
+        geometry_msgs::PoseStamped decide_track;
         struct DeltaPair {
             double delta_x;
             double delta_y;
@@ -110,12 +121,14 @@ class MissionFSM
         enum class DroneState {
             INIT,
             TAKEOFF,
+            DECIDE_TRACK,
             CROSS_RING,
             DECIDE_LAND,
             TRACKING_WAYPOINT,
             DROPING,
             CROSS_LAND,
             HIGHING,
+            FINISH_DROP,
             DECIDE_CROSS,
             DECIDE_CROSS02,
             DECIDE_CROSS03,
@@ -128,7 +141,6 @@ class MissionFSM
             CHANGE_YAW,
             // PREPARE_TUNNEL,
             FINISH_Dynamic,
-            TRACKING_TUNNEL,
             DEBUG02,
             LAND,
             DEBUG,

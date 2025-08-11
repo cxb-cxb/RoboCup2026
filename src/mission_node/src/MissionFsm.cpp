@@ -37,6 +37,7 @@ MissionFSM::MissionFSM() : rate(20.0) {
     current_drone_state = DyDropState::TRACKING;
     Drop_queue.push('C');
     Drop_queue.push('P');
+    Drop_queue.push('U');
     mission_num = 0;
     linear_x_p = 0.3;
     linear_y_p = 0.3;
@@ -49,20 +50,20 @@ MissionFSM::MissionFSM() : rate(20.0) {
     cargo_dropped = false;
     ego_contral = true;
     droping_i = 300; 
-    goods_num = 2;
+    goods_num = 3;
     last_target_x=0;
     last_target_y=0;
     cross_point.header.frame_id = "camera_init";
     // cross_point.pose.position.x = 9.0;
     // cross_point.pose.position.y = 1.95;
     // cross_point.pose.position.z = 0.6;
-    cross_point.pose.position.x = 3.70;
-    cross_point.pose.position.y = 0;
+    cross_point.pose.position.x = 9.0;
+    cross_point.pose.position.y = 2.0;
     cross_point.pose.position.z = 0.6;
     cross_point.pose.orientation.x = 0;
     cross_point.pose.orientation.y = 0;
-    cross_point.pose.orientation.z = 0;
-    cross_point.pose.orientation.w = 1;
+    cross_point.pose.orientation.z = 0.7;
+    cross_point.pose.orientation.w = -0.7;
     // dynamic_position.pose.position.x = 2.2;
     // dynamic_position.pose.position.y = 0.0;
     // dynamic_position.pose.position.z = 1.0;
@@ -76,13 +77,13 @@ MissionFSM::MissionFSM() : rate(20.0) {
     // cross_point_02.pose.position.x = 9.0;
     // cross_point_02.pose.position.y = -0.65;
     // cross_point_02.pose.position.z = 0.6;
-    cross_point_02.pose.position.x = 1.62;
-    cross_point_02.pose.position.y = -1.5;
+    cross_point_02.pose.position.x = 9.1;
+    cross_point_02.pose.position.y = -0.48;
     cross_point_02.pose.position.z = 0.6;
     cross_point_02.pose.orientation.x = 0;
     cross_point_02.pose.orientation.y = 0;
-    cross_point_02.pose.orientation.z = 0;
-    cross_point_02.pose.orientation.w = 1;
+    cross_point_02.pose.orientation.z = 0.7;
+    cross_point_02.pose.orientation.w = -0.7;
 
     //
     cross_point_03.header.frame_id = "camera_init";
@@ -96,34 +97,6 @@ MissionFSM::MissionFSM() : rate(20.0) {
     cross_point_03.pose.orientation.y = 0;
     cross_point_03.pose.orientation.z = 0;
     cross_point_03.pose.orientation.w = 1;
-    //测试点
-    Debug_point.pose.position.x = 6.2;
-    Debug_point.pose.position.y = 0.0;
-    Debug_point.pose.position.z = 1.0;
-    //
-    //降落点初始化
-    //right 
-    decide_right.pose.position.x = 0.0;
-    decide_right.pose.position.y = -1.57;
-    decide_right.pose.position.z = 1.0;
-    decide_right.pose.orientation.x = 0;
-    decide_right.pose.orientation.y = 0;
-    decide_right.pose.orientation.z = 0;
-    decide_right.pose.orientation.w = 1;
-    //left
-    decide_left.pose.position.x = 0;
-    decide_left.pose.position.y = 1.62;
-    decide_left.pose.position.z = 1.0;
-    decide_left.pose.orientation.x = 0;
-    decide_left.pose.orientation.y = 0;
-    decide_left.pose.orientation.z = 0;
-    decide_left.pose.orientation.w = 1;
-    //起飞后的第一个点，识别二维码
-
-    detect_point.pose.position.x = 1.9;
-    detect_point.pose.position.y = 0.0;
-    detect_point.pose.position.z = 1.0;
-
     //由特殊把到目标点的避障点
     geometry_msgs::PoseStamped first_1;
     first_1.pose.position.x = 4.5;
@@ -169,8 +142,8 @@ MissionFSM::MissionFSM() : rate(20.0) {
 
     // 第1个目标点
     geometry_msgs::PoseStamped target_3;
-    target_3.pose.position.x = 1.88;
-    target_3.pose.position.y = -2.42;
+    target_3.pose.position.x = 1.76;
+    target_3.pose.position.y = -2.55;
     target_3.pose.position.z = 1.0;
     //yaw角设置1
     target_3.pose.orientation.x = 0;
@@ -182,8 +155,8 @@ MissionFSM::MissionFSM() : rate(20.0) {
 
     // 第2个目标点
     geometry_msgs::PoseStamped target_4;
-    target_4.pose.position.x = 4.08;
-    target_4.pose.position.y = -0.7;
+    target_4.pose.position.x = 4.5;
+    target_4.pose.position.y = -1.7;
     target_4.pose.position.z = 1.0;
 
     target_4.pose.orientation.x = 0;
@@ -193,9 +166,9 @@ MissionFSM::MissionFSM() : rate(20.0) {
     target_points.push_back(target_4);
        // 第3个目标点
     geometry_msgs::PoseStamped target_5;
-    target_5.pose.position.x = 1.85;
+    target_5.pose.position.x = 2.46;
 
-    target_5.pose.position.y = 0.175;
+    target_5.pose.position.y = 2.32;
 
     target_5.pose.position.z = 1.0;
     //yaw角设置
@@ -207,8 +180,8 @@ MissionFSM::MissionFSM() : rate(20.0) {
 
     // 第4个目标点
     geometry_msgs::PoseStamped target_1;
-    target_1.pose.position.x = 3.35;
-    target_1.pose.position.y = 2.78;
+    target_1.pose.position.x = 4.6;
+    target_1.pose.position.y = 1.3;
     target_1.pose.position.z = 1.0;
 
     //yaw角设置
@@ -262,34 +235,42 @@ void MissionFSM::process()
             {
                 ROS_INFO("success");
                 //完整流程
+                ros::Duration(2.0).sleep();
+                current_state = DroneState::DECIDE_TRACK;
                 // current_state = DroneState::TRACKING_WAYPOINT;
 
-
-
                 // current_state = DroneState::CROSS_LAND;
-                current_state = DroneState::DECIDE_DYNAMIC;
+                // current_state = DroneState::DECIDekE_DYNAMIC;
 
                 ROS_INFO("TAKE SUCCESS");
                 // Ser_pub('U');
             }
             break; 
-        case DroneState::DEBUG:
+        case DroneState::DECIDE_TRACK:
             //ego-planner的调试
-            // first_pub(first_points);
-            pid_control();
+            decide_track.pose.position.x = 0.1;
+            decide_track.pose.position.y = 0;
+            decide_track.pose.position.z = 1.0;
+            decide_track.pose.orientation.x = 0;
+            decide_track.pose.orientation.y = 0;
+            decide_track.pose.orientation.z = 0;
+            decide_track.pose.orientation.w = 1;
+            pos_pub.publish(decide_track);
+            if (std::abs(pose_data.pose_local.pose.position.z - 1.0)<0.05 && std::abs(pose_data.pose_local.pose.position.x - 0.1) <0.05)
+            {
+                current_state = DroneState::TRACKING_WAYPOINT;
+                ROS_INFO("OK");
+            }
             break;
         case DroneState::DECIDE_DYNAMIC:
             //准备动态靶标
             //yaw角设置
             // position_pub.publish(dynamic_position);
             //测试点
-            dynamic_position.pose.position.x =2.23;
-            dynamic_position.pose.position.y = -0.1;
-            dynamic_position.pose.position.z = 1.2;
             //正式版
-            // dynamic_position.pose.position.x =6.48;
-            // dynamic_position.pose.position.y = -0.3;
-            // dynamic_position.pose.position.z = 1.2;
+            dynamic_position.pose.position.x =6.48;
+            dynamic_position.pose.position.y = -0.3;
+            dynamic_position.pose.position.z = 1.2;
             dynamic_position.pose.orientation.x = 0;
             dynamic_position.pose.orientation.y = 0;
             dynamic_position.pose.orientation.z = 0;
@@ -303,7 +284,6 @@ void MissionFSM::process()
             }
             pos_pub.publish(dynamic_position);          
             ROS_INFO("---decideing---");
-            
             if(std::abs(pose_data.pose_local.pose.position.x - dynamic_position.pose.position.x)< 0.05 && std::abs(pose_data.pose_local.pose.position.y -dynamic_position.pose.position.y) < 0.05 && std::abs(pose_data.pose_local.pose.position.z - dynamic_position.pose.position.z) < 0.05 )
             {
                 // 采样5秒内的delta_x, delta_y
@@ -451,13 +431,36 @@ void MissionFSM::process()
                     // pose_pub(target_points,mission_num);
                     // printf("num:%d \n",mission_num);
                     // judge_start.data =0;
-                    current_state = DroneState::DECIDE_DYNAMIC ;//准备降落或者去穿隧道
+                    current_state = DroneState::FINISH_DROP ;//准备降落或者去穿隧道
                     // judge_start_pub.publish(judge_start);
                     ROS_INFO("finish");
                 }
 
             }
-            break;  
+            break; 
+        case DroneState::FINISH_DROP:
+            drop_finish_point.pose.position.x = 7.4;
+            drop_finish_point.pose.position.y = 2.37;
+            drop_finish_point.pose.position.z = 1.0;
+            drop_finish_point.pose.orientation.x = 0;
+            drop_finish_point.pose.orientation.y = 0;
+            drop_finish_point.pose.orientation.z = 0;
+            drop_finish_point.pose.orientation.w = 1;
+            if(ego_contral)
+            {
+                position_pub.publish(drop_finish_point);
+                ego_contral = false;
+                ROS_INFO("--sending--");
+                ros::Duration(1.0).sleep();
+            }
+            pos_pub.publish(drop_finish_point);
+            if (std::abs(pose_data.pose_local.pose.position.x - drop_finish_point.pose.position.x) <0.05 && std::abs(pose_data.pose_local.pose.position.z - drop_finish_point.pose.position.z)<0.05 && std::abs(pose_data.pose_local.pose.position.y - drop_finish_point.pose.position.y)<0.05)
+            {
+                ROS_INFO("DECIDE CROSS");
+                current_state = DroneState::CROSS_LAND;
+            }
+            
+            break; 
         case DroneState::DROPING:
             ros::Duration(1.0).sleep();
             ros::spinOnce();
@@ -490,7 +493,7 @@ void MissionFSM::process()
                 }
                 if(droping_second && getLengthBetweenPoints(pose_data.pose_local.pose.position,Adjust_point.pose.position)<0.3)
                 {
-                    if (image_staff.image_data.detected_class != "bridge" && image_staff.image_data.detected_class != "car" && !((mission_num == 2 && goods_num == 2) || (mission_num == 3 && goods_num == 1)))                    
+                    if (image_staff.image_data.detected_class != "bridge" && image_staff.image_data.detected_class != "car" && image_staff.image_data.detected_class != "bunker" && !((mission_num == 1 && goods_num == 3) || (mission_num == 2 && goods_num == 2) || (mission_num == 3 && goods_num == 1)))                    
                     {
                         current_state = DroneState::TRACKING_WAYPOINT;
                         mission_num+=1;  
@@ -500,7 +503,7 @@ void MissionFSM::process()
                     else 
                     {
                         printf("success\n");
-                        if(static_cast<int>(Drop_queue.size()) == 2 && second_adjust)
+                        if(static_cast<int>(Drop_queue.size()) == 3 && second_adjust)
                         {
                             //根据第一个进行调整 :C
                             computeAdjustment(image_staff.image_data.cx,image_staff.image_data.cy,pose_data.pose_local.pose.position.z ,pose_data.pose_local.pose.orientation,delta_x, delta_y,delta_z);
@@ -523,9 +526,9 @@ void MissionFSM::process()
                             pos_pub.publish(Adjust_point);
                             second_adjust = false;
                             droping_second = false;
-                            ROS_INFO("2");
+                            ROS_INFO("3");
                         }
-                        else if(static_cast<int>(Drop_queue.size()) == 1 && second_adjust)
+                        else if(static_cast<int>(Drop_queue.size()) == 2 && second_adjust)
                         {
                             //根据第二个进行调整 :U
                             ROS_INFO("Drop_queue size: %zu", Drop_queue.size());
@@ -549,11 +552,37 @@ void MissionFSM::process()
                             pos_pub.publish(Adjust_point);
                             second_adjust = false;
                             droping_second = false;
+                            ROS_INFO("2");
+                        }
+                        else if(static_cast<int>(Drop_queue.size()) == 1 && second_adjust)
+                        {
+                            //根据第二个进行调整 :U
+                            ROS_INFO("Drop_queue size: %zu", Drop_queue.size());
+                            computeAdjustment(image_staff.image_data.cx,image_staff.image_data.cy,pose_data.pose_local.pose.position.z ,pose_data.pose_local.pose.orientation,delta_x, delta_y,delta_z);
+                            Adjust_point.pose.position.x = delta_x + pose_data.pose_local.pose.position.x-0.2 ;
+                            Adjust_point.pose.position.y = delta_y + pose_data.pose_local.pose.position.y ;
+                            Adjust_point.pose.position.z = 0.3;
+                            Adjust_point.pose.orientation.x = 0;
+                            Adjust_point.pose.orientation.y = 0;
+                            Adjust_point.pose.orientation.z = 0;
+                            Adjust_point.pose.orientation.w = 1;
+                            // Adjust_point.pose.position.x =  pose_data.pose_local.pose.position.x -0.2;
+                            // Adjust_point.pose.position.y =  pose_data.pose_local.pose.position.y  ;
+                            // Adjust_point.pose.position.z =  0.3;
+                            // // Adjust_point.pose.position.z =  0.5;
+                            // // //yaw角设置
+                            // Adjust_point.pose.orientation.x = 0;
+                            // Adjust_point.pose.orientation.y = 0;
+                            // Adjust_point.pose.orientation.z = 0;
+                            // Adjust_point.pose.orientation.w = 1;
+                            pos_pub.publish(Adjust_point);
+                            second_adjust = false;
+                            droping_second = false;
                             ROS_INFO("3");
                         }
                     }
                 }
-                if(std::abs(pose_data.pose_local.pose.position.z - 0.3) < 0.05 && std::abs(pose_data.pose_local.pose.position.x - Adjust_point.pose.position.x) <0.05 && std::abs(pose_data.pose_local.pose.position.y - Adjust_point.pose.position.y)<0.05)
+                if(std::abs(pose_data.pose_local.pose.position.z - 0.3) < 0.05 && std::abs(pose_data.pose_local.pose.position.x - Adjust_point.pose.position.x) <0.03 && std::abs(pose_data.pose_local.pose.position.y - Adjust_point.pose.position.y)<0.03)
                 { 
 
                     ROS_INFO_THROTTLE(1.0, "Data: %s", current_class.data.c_str());
@@ -598,7 +627,29 @@ void MissionFSM::process()
                         mission_num+=1;
                         goods_num--;
                     }
-                    if(current_class.data =="bridge" && mission_num != 4 && mission_num != 3)
+                    if(mission_num == 1)
+                    {
+                        Ser_pub(Drop_queue.front());
+                        Drop_queue.pop();
+                        ROS_INFO("Droping Finsh ");
+                        droping_flag =  true;
+                        // goods_num--;   
+                        droping_second = true;
+                        second_adjust = true;
+                        ros::Duration(1.0).sleep();
+                        current_state = DroneState::TRACKING_WAYPOINT;
+                        hight_point.pose.position.x = pose_data.pose_local.pose.position.x;
+                        hight_point.pose.position.y = pose_data.pose_local.pose.position.y;
+                        hight_point.pose.position.z = 1.0;
+                        hight_point.pose.orientation.x = 0;
+                        hight_point.pose.orientation.y = 0;
+                        hight_point.pose.orientation.z = 0;
+                        hight_point.pose.orientation.w = 1;
+                        pos_pub.publish(hight_point);
+                        mission_num+=1;
+                        goods_num--;
+                    }
+                    if(current_class.data =="bridge" && mission_num != 4 && mission_num != 3 && mission_num !=2)
                     {
                         Ser_pub(Drop_queue.front());
                         Drop_queue.pop();
@@ -621,7 +672,7 @@ void MissionFSM::process()
                         printf("num:%d\n",goods_num);
                         // current_class.data = "";
                     }
-                    if(current_class.data == "car" && mission_num != 4 && mission_num != 3)
+                    if(current_class.data == "car" && mission_num != 4 && mission_num != 3  && mission_num !=2)
                     {
                         Ser_pub(Drop_queue.front());
                         Drop_queue.pop();
@@ -643,7 +694,30 @@ void MissionFSM::process()
                         mission_num+=1;
                         goods_num--;
                         printf("num:%d\n",goods_num);
-                    }                   
+                    }     
+                    if(current_class.data == "bunker" && mission_num != 4 && mission_num != 3  && mission_num !=2)
+                    {
+                        Ser_pub(Drop_queue.front());
+                        Drop_queue.pop();
+                        // current_class.data = "";
+                        ROS_INFO("Droping Finsh ");
+                        droping_flag =  true;
+                        droping_second = true;
+                        second_adjust = true;
+                        ros::Duration(1.0).sleep();
+                        current_state = DroneState::TRACKING_WAYPOINT;
+                        hight_point.pose.position.x = pose_data.pose_local.pose.position.x;
+                        hight_point.pose.position.y = pose_data.pose_local.pose.position.y;
+                        hight_point.pose.position.z = 1.0;
+                        hight_point.pose.orientation.x = 0;
+                        hight_point.pose.orientation.y = 0;
+                        hight_point.pose.orientation.z = 0;
+                        hight_point.pose.orientation.w = 1;
+                        pos_pub.publish(hight_point);
+                        mission_num+=1;
+                        goods_num--;
+                        printf("num:%d\n",goods_num);
+                    }              
                 }                     
             }
             else
@@ -695,16 +769,6 @@ void MissionFSM::process()
                 // current_state = DroneState::CROSS_LAND;
                 ego_contral = true;
             }           
-            // change_yaw.pose.position.x = pose_data.pose_local.pose.position.x;
-            // change_yaw.pose.position.y = pose_data.pose_local.pose.position.y;
-            // change_yaw.pose.position.z = 1.5;
-            // change_yaw.pose.orientation.x = 0;
-            // change_yaw.pose.orientation.y = 0;
-            // change_yaw.pose.orientation.z = 0.7;
-            // change_yaw.pose.orientation.w = -0.7;     
-            // pos_pub.publish(change_yaw);
-            // ROS_INFO("CHANGE FINISH");
-            // current_state= DroneState::TRACKING_TUNNEL;
             break; 
 
         case DroneState::CROSS_LAND:
@@ -712,9 +776,9 @@ void MissionFSM::process()
             // cross_land_point.pose.position.y = 2.3;
             // cross_land_point.pose.position.z = 0.6;
 
-            cross_land_point.pose.position.x = 0;
-            cross_land_point.pose.position.y = 0;
-            cross_land_point.pose.position.z = 0.6;
+            cross_land_point.pose.position.x= drop_finish_point.pose.position.x;
+            cross_land_point.pose.position.y= drop_finish_point.pose.position.y;
+            cross_land_point.pose.position.z= 0.6;
             cross_land_point.pose.orientation.x = 0;
             cross_land_point.pose.orientation.y = 0;
             cross_land_point.pose.orientation.z = 0;
@@ -723,15 +787,28 @@ void MissionFSM::process()
             ROS_INFO("----land----");
             if (std::abs(pose_data.pose_local.pose.position.z - 0.6) < 0.05)
             {
+                current_state = DroneState::CHANGE_YAW;
+            }
+            break;
+        case DroneState::CHANGE_YAW:
+            change_yaw_point.pose.position = cross_land_point.pose.position;
+            // //对应角度的四元数
+            change_yaw_point.pose.orientation.x = 0;
+            change_yaw_point.pose.orientation.y = 0;
+            change_yaw_point.pose.orientation.z = 0.7;
+            change_yaw_point.pose.orientation.w = -0.7;
+            pos_pub.publish(change_yaw_point);
+            printf("error_1:%f\n",getLengthBetweenPoints(pose_data.pose_local.pose.position,change_yaw_point.pose.position));
+            printf("error_2:%f\n",getAbsYawDifference(pose_data.pose_local.pose.orientation,change_yaw_point.pose.orientation));
+            if (getLengthBetweenPoints(pose_data.pose_local.pose.position,change_yaw_point.pose.position) < 0.2 && getAbsYawDifference(pose_data.pose_local.pose.orientation,change_yaw_point.pose.orientation) < 0.15)
+            {
+                ROS_INFO("---CHANGE FINISH---");
                 current_state = DroneState::DECIDE_CROSS;
             }
             break;
-        // case DroneState::CHANGE_YAW:
-        //     change_yaw_point = cross_point_01
-
-
 
         case DroneState::DECIDE_CROSS:
+            // cross_point.pose.orientation = change_yaw_point.pose.orientation;
             if (cross_judge)
             {
                 cross_pub.publish(cross_point);
@@ -748,8 +825,8 @@ void MissionFSM::process()
             if (getLengthBetweenPoints(pose_data.pose_local.pose.position,cross_point.pose.position) < 0.2)
             {
                 ROS_INFO("---success---");
-                // current_state = DroneState::DECIDE_CROSS03;
-                current_state = DroneState::LAND;
+                current_state = DroneState::DECIDE_CROSS02;
+                // current_state = DroneState::LAND;
 
             }
             ROS_INFO("---gonging---");
@@ -774,7 +851,7 @@ void MissionFSM::process()
             if (getLengthBetweenPoints(pose_data.pose_local.pose.position,cross_point_02.pose.position) < 0.2)
             {
                 ROS_INFO("---success---");
-                current_state = DroneState::DECIDE_CROSS03;
+                current_state = DroneState::LAND;
             }
             ROS_INFO("---gonging---");
             break;
@@ -799,65 +876,6 @@ void MissionFSM::process()
             }
             ROS_INFO("---gonging---");
             break;          
-
-
-
-
-        
-        case DroneState::TRACKING_TUNNEL:
-            
-            if(!yaw_judge && std::abs(quaternionToYaw(pose_data.pose_local.pose.orientation) - quaternionToYaw(change_yaw.pose.orientation)) < 0.08)
-            {
-                ROS_INFO("FINISH  OK");
-                circle_staff.judge_circle_center = true;
-                if(circle_staff.circle_pose.pose.position.x!=0)
-                {
-                    ros::Duration(1.0).sleep();
-                    cross_circle.pose.position.x = circle_staff.circle_pose.pose.position.x;
-                    cross_circle.pose.position.y = pose_data.pose_local.pose.position.y;
-                    cross_circle.pose.position.z = 1.50;
-                    cross_circle.pose.orientation.x = 0;
-                    cross_circle.pose.orientation.y = 0;
-                    cross_circle.pose.orientation.z = 0.7;
-                    cross_circle.pose.orientation.w = -0.7; 
-                    ROS_INFO("---SUCCESS---");
-                    pos_pub.publish(cross_circle);
-                    ros::Duration(1.0).sleep();
-                    yaw_judge = true;
-                }
-                ROS_INFO("----CHANGE FINISH-----");
-            }
-            if(getLengthBetweenPoints(pose_data.pose_local.pose.position,cross_circle.pose.position) < 0.1 )
-            {
-                ros::Duration(1.0).sleep();
-                if( circle_staff.circle_pose.pose.position.x >2 ||  circle_staff.circle_pose.pose.position.x <0)
-                {
-                    circle_staff.circle_pose.pose.position.x = 0;
-                }
-                cross_circle.pose.position.x = circle_staff.circle_pose.pose.position.x;
-                cross_circle.pose.position.y = -1.8;
-                cross_circle.pose.position.z = 1.50;
-                cross_circle.pose.orientation.x = 0;
-                cross_circle.pose.orientation.y = 0;
-                cross_circle.pose.orientation.z = 0.7;
-                cross_circle.pose.orientation.w = -0.7; 
-                pos_pub.publish(cross_circle);
-                ROS_INFO("------CROSS-------");
-                cross_judge = true;
-            }
-            if(cross_judge && getLengthBetweenPoints(pose_data.pose_local.pose.position,cross_circle.pose.position)<0.05)
-            {
-                ROS_INFO("----OKOK---");
-                land_point.pose.position.x = pose_data.pose_local.pose.position.x;
-                land_point.pose.position.y = pose_data.pose_local.pose.position.y;
-                land_point.pose.position.z = 0.0;
-                current_state = current_state= DroneState::FINISH;
-                pos_pub.publish(land_point);
-                //current_state = DroneState::TRACKING_WAYPOINT;
-            }
-
-            break;
-        
         case DroneState::LAND:
                 //正式点
                 // land_point.pose.position.x = cross_point.pose.position.x;
@@ -865,14 +883,12 @@ void MissionFSM::process()
                 // land_point.pose.position.z = -0.01;
 
                 //测试点
-
-                land_point.pose.position.x = 0;
-                land_point.pose.position.y = 0;
-                land_point.pose.position.z = -0.01;
-                land_point.pose.orientation.x = 0;
-                land_point.pose.orientation.y = 0;
-                land_point.pose.orientation.z =0;
-                land_point.pose.orientation.w = 1;
+                land_point.pose.position = cross_point_02.pose.position;
+                land_point.pose.orientation = change_yaw_point.pose.orientation;
+                // land_point.pose.orientation.x = 0;
+                // land_point.pose.orientation.y = 0;
+                // land_point.pose.orientation.z =0;
+                // land_point.pose.orientation.w = 1;
                 current_state = current_state= DroneState::FINISH;
                 pos_pub.publish(land_point);
                 ROS_INFO("--LANDING---");
@@ -1264,3 +1280,39 @@ float MissionFSM::constrain(float value, float min_val, float max_val) {
 // 在类的末尾修改这些函数（大约在第1050行之后）
 
 // 添加新的delta对到向量
+//yaw角判断
+double MissionFSM::getYawDifference(const geometry_msgs::Quaternion& quat1, 
+                                   const geometry_msgs::Quaternion& quat2) 
+{
+    // 分别计算两个四元数的yaw角
+    double yaw1 = quaternionToYaw(quat1);
+    double yaw2 = quaternionToYaw(quat2);
+    
+    // 计算角度差值
+    double diff = yaw2 - yaw1;
+    
+    // 将角度差值规范化到 [-π, π] 范围内
+    while (diff > M_PI) {
+        diff -= 2.0 * M_PI;
+    }
+    while (diff < -M_PI) {
+        diff += 2.0 * M_PI;
+    }
+    
+    return diff;
+}
+
+// 如果你需要角度差值的绝对值（总是正数）
+double MissionFSM::getAbsYawDifference(const geometry_msgs::Quaternion& quat1, 
+                                      const geometry_msgs::Quaternion& quat2) 
+{
+    return std::abs(getYawDifference(quat1, quat2));
+}
+
+// 如果你需要返回度数而不是弧度
+double MissionFSM::getYawDifferenceDegrees(const geometry_msgs::Quaternion& quat1, 
+                                          const geometry_msgs::Quaternion& quat2) 
+{
+    double diff_rad = getYawDifference(quat1, quat2);
+    return diff_rad * 180.0 / M_PI;  // 弧度转度数
+}
