@@ -57,13 +57,13 @@ MissionFSM::MissionFSM() : rate(20.0) {
     // cross_point.pose.position.x = 9.0;
     // cross_point.pose.position.y = 1.95;
     // cross_point.pose.position.z = 0.6;
-    cross_point.pose.position.x = 9.0;
-    cross_point.pose.position.y = 2.0;
+    cross_point.pose.position.x = -2.0;//9.0;
+    cross_point.pose.position.y = 9.0;//2.0;
     cross_point.pose.position.z = 0.6;
     cross_point.pose.orientation.x = 0;
     cross_point.pose.orientation.y = 0;
-    cross_point.pose.orientation.z = 0.7;
-    cross_point.pose.orientation.w = -0.7;
+    cross_point.pose.orientation.z = 0;
+    cross_point.pose.orientation.w = 1;
     // dynamic_position.pose.position.x = 2.2;
     // dynamic_position.pose.position.y = 0.0;
     // dynamic_position.pose.position.z = 1.0;
@@ -77,13 +77,13 @@ MissionFSM::MissionFSM() : rate(20.0) {
     // cross_point_02.pose.position.x = 9.0;
     // cross_point_02.pose.position.y = -0.65;
     // cross_point_02.pose.position.z = 0.6;
-    cross_point_02.pose.position.x = 9.1;
-    cross_point_02.pose.position.y = -0.48;
+    cross_point_02.pose.position.x = 0.48;//9.1;
+    cross_point_02.pose.position.y = 9.1;//-0.48;
     cross_point_02.pose.position.z = 0.6;
     cross_point_02.pose.orientation.x = 0;
     cross_point_02.pose.orientation.y = 0;
-    cross_point_02.pose.orientation.z = 0.7;
-    cross_point_02.pose.orientation.w = -0.7;
+    cross_point_02.pose.orientation.z = 0;
+    cross_point_02.pose.orientation.w = 1;
 
     //
     cross_point_03.header.frame_id = "camera_init";
@@ -142,8 +142,8 @@ MissionFSM::MissionFSM() : rate(20.0) {
 
     // 第1个目标点
     geometry_msgs::PoseStamped target_3;
-    target_3.pose.position.x = 1.76;
-    target_3.pose.position.y = -2.55;
+    target_3.pose.position.x = 2.55;//1.76;
+    target_3.pose.position.y = 1.76;//-2.55;
     target_3.pose.position.z = 1.0;
     //yaw角设置1
     target_3.pose.orientation.x = 0;
@@ -155,8 +155,8 @@ MissionFSM::MissionFSM() : rate(20.0) {
 
     // 第2个目标点
     geometry_msgs::PoseStamped target_4;
-    target_4.pose.position.x = 4.5;
-    target_4.pose.position.y = -1.7;
+    target_4.pose.position.x = 1.7;//4.5;
+    target_4.pose.position.y = 4.5;//-1.7;
     target_4.pose.position.z = 1.0;
 
     target_4.pose.orientation.x = 0;
@@ -166,9 +166,9 @@ MissionFSM::MissionFSM() : rate(20.0) {
     target_points.push_back(target_4);
        // 第3个目标点
     geometry_msgs::PoseStamped target_5;
-    target_5.pose.position.x = 2.46;
+    target_5.pose.position.x = -2.32;//2.46;
 
-    target_5.pose.position.y = 2.32;
+    target_5.pose.position.y = 2.46;//2.32;
 
     target_5.pose.position.z = 1.0;
     //yaw角设置
@@ -180,8 +180,8 @@ MissionFSM::MissionFSM() : rate(20.0) {
 
     // 第4个目标点
     geometry_msgs::PoseStamped target_1;
-    target_1.pose.position.x = 4.6;
-    target_1.pose.position.y = 1.3;
+    target_1.pose.position.x = -1.3;//4.6;
+    target_1.pose.position.y = 4.6;//1.3;
     target_1.pose.position.z = 1.0;
 
     //yaw角设置
@@ -190,6 +190,9 @@ MissionFSM::MissionFSM() : rate(20.0) {
     target_1.pose.orientation.z = 0;
     target_1.pose.orientation.w = 1;
     target_points.push_back(target_1);
+
+
+
     // 第5个目标点
     geometry_msgs::PoseStamped target_2;
     target_2.pose.position.x = 1.85;
@@ -439,8 +442,8 @@ void MissionFSM::process()
             }
             break; 
         case DroneState::FINISH_DROP:
-            drop_finish_point.pose.position.x = 7.4;
-            drop_finish_point.pose.position.y = 2.37;
+            drop_finish_point.pose.position.x = -2.37;//7.4;
+            drop_finish_point.pose.position.y = 7.4;//2.37;
             drop_finish_point.pose.position.z = 1.0;
             drop_finish_point.pose.orientation.x = 0;
             drop_finish_point.pose.orientation.y = 0;
@@ -787,9 +790,11 @@ void MissionFSM::process()
             ROS_INFO("----land----");
             if (std::abs(pose_data.pose_local.pose.position.z - 0.6) < 0.05)
             {
-                current_state = DroneState::CHANGE_YAW;
+                current_state = DroneState::DECIDE_CROSS;
             }
             break;
+
+
         case DroneState::CHANGE_YAW:
             change_yaw_point.pose.position = cross_land_point.pose.position;
             // //对应角度的四元数
@@ -884,7 +889,7 @@ void MissionFSM::process()
 
                 //测试点
                 land_point.pose.position = cross_point_02.pose.position;
-                land_point.pose.orientation = change_yaw_point.pose.orientation;
+                land_point.pose.orientation = cross_point_02.pose.orientation;
                 // land_point.pose.orientation.x = 0;
                 // land_point.pose.orientation.y = 0;
                 // land_point.pose.orientation.z =0;
