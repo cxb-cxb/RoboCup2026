@@ -960,17 +960,7 @@ void MissionFSM::process()
                 // land_point.pose.position.x = cross_point.pose.position.x;
                 // land_point.pose.position.y = cross_point.pose.position.y;
                 // land_point.pose.position.z = -0.01;
-                if(!image_staff.image_data.detected_class.empty()) //|| !class_staff.class_data.classify_class.empty())
-                {
-                    computeAdjustment(image_staff.image_data.cx,image_staff.image_data.cy,pose_data.pose_local.pose.position.z ,pose_data.pose_local.pose.orientation,delta_x, delta_y,delta_z);
-                    Adjust_point.pose.position.x = delta_x + pose_data.pose_local.pose.position.x;
-                    Adjust_point.pose.position.y = delta_y + pose_data.pose_local.pose.position.y;
-                    Adjust_point.pose.position.z = 0;
-                    pos_pub.publish(Adjust_point);
-                    ROS_INFO("---LANDING---");
-                    current_state = DroneState::FINISH;
-                }
-                else
+                if(true)
                 {
                     //测试点
                     land_point.pose.position.x = cross_point_02.pose.position.x;
@@ -1152,8 +1142,8 @@ void MissionFSM::computeAdjustment(double u, double v, double depth, const geome
      tf2::Matrix3x3 mat(tf_quat);
      mat.getRPY(roll, pitch, yaw);  // yaw 是弧度值
     // (1) 图像像素坐标 → 相机坐标系
-    double x_cam =  ((u -cx) / fx) * depth;
-    double y_cam =  -((v -cy) / fy) * depth;
+    double x_cam =  ((u -cx) / fx) * (depth+0.175);
+    double y_cam =  -((v -cy) / fy) * (depth+0.175);
     double z_cam =  -depth;
     //图像到无人机坐标
     delta_x = cos(yaw)*(y_cam + dx) - (-x_cam + dy )*sin(yaw);
