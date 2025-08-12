@@ -418,6 +418,8 @@ void MissionFSM::process()
             break;
         case DroneState::TRACKING_WAYPOINT:
             ROS_INFO(" TO TARGET POINT ");
+            collectFlightData();
+
             // judge_start_pub.publish();
             if(mission_num < 4) //&& goods_num!=0)
             {
@@ -485,9 +487,8 @@ void MissionFSM::process()
                     
                     // 使用基于类别统计的中位数进行微调
                     double median_x, median_y;
-                    std::string dominant_class;
-            
-                    if(calculateClassBasedMedianAdjustment(median_x, median_y, dominant_class)) 
+                    std::string target_class;            
+                    if(calculateClassBasedMedianAdjustment(median_x, median_y, target_class)) 
                     {
                         // 使用统计得出的主要类别的中位数位置进行微调
                         Adjust_point.pose.position.x = median_x;
@@ -499,10 +500,12 @@ void MissionFSM::process()
                         Adjust_point.pose.orientation.w = 1;
                 
                         // 更新当前类别为主要检测到的类别
-                        current_class.data = dominant_class;
-                
-                        printf("Using class-based median adjustment for '%s' - x:%.3f, y:%.3f from %zu total samples\n", 
-                       dominant_class.c_str(), median_x, median_y, flight_data_samples.size());
+                        current_class.data = target_class;
+                        printf("Using filtered median for class '%s' - x:%.3f, y:%.3f\n", 
+                        target_class.c_str(), median_x, median_y);
+                       
+                        ROS_INFO("Applied median adjustment based on current detection: %s", target_class.c_str()); image_staff.image_data.detected_class;                
+
                     } 
                     else 
                     {
@@ -519,8 +522,8 @@ void MissionFSM::process()
                                 Adjust_point.pose.orientation.z = 0;
                                 Adjust_point.pose.orientation.w = 1;
                             
-                            current_class.data = image_staff.image_data.detected_class;
-                            printf("Using current detection fallback - x:%.3f, y:%.3f\n", 
+                        current_class.data = image_staff.image_data.detected_class;
+                        printf("Using current detection fallback - x:%.3f, y:%.3f\n", 
                                 delta_x, delta_y);
                     }
                         
@@ -618,7 +621,7 @@ void MissionFSM::process()
                             pos_pub.publish(Adjust_point);
                             second_adjust = false;
                             droping_second = false;
-                            ROS_INFO("3");
+                            ROS_INFO("1");
                         }
                     }
                 }
@@ -644,6 +647,7 @@ void MissionFSM::process()
                         hight_point.pose.orientation.w = 1;
                         pos_pub.publish(hight_point);
                         mission_num+=1;
+                        startDataCollection();
                     }
                     if(mission_num == 2)
                     {
@@ -666,6 +670,7 @@ void MissionFSM::process()
                         pos_pub.publish(hight_point);
                         mission_num+=1;
                         goods_num--;
+                        startDataCollection();
                     }
                     if(mission_num == 1)
                     {
@@ -688,6 +693,7 @@ void MissionFSM::process()
                         pos_pub.publish(hight_point);
                         mission_num+=1;
                         goods_num--;
+                        startDataCollection();
                     }
                     if(current_class.data =="bridge" && mission_num != 4 && mission_num != 3 && mission_num !=2)
                     {
@@ -710,6 +716,7 @@ void MissionFSM::process()
                         mission_num+=1;
                         goods_num--;
                         printf("num:%d\n",goods_num);
+                        startDataCollection();
                         // current_class.data = "";
                     }
                     if(current_class.data == "car" && mission_num != 4 && mission_num != 3  && mission_num !=2)
@@ -734,6 +741,7 @@ void MissionFSM::process()
                         mission_num+=1;
                         goods_num--;
                         printf("num:%d\n",goods_num);
+                        startDataCollection();
                     }     
                     if(current_class.data == "bunker" && mission_num != 4 && mission_num != 3  && mission_num !=2)
                     {
@@ -757,6 +765,7 @@ void MissionFSM::process()
                         mission_num+=1;
                         goods_num--;
                         printf("num:%d\n",goods_num);
+                        startDataCollection();
                     }              
                 }                     
             }
@@ -1293,58 +1302,68 @@ void MissionFSM::collectFlightData() {
 }
 
 
-bool MissionFSM::calculateClassBasedMedianAdjustment(double& median_dx, double& median_dy, std::string& dominant_class) {
+bool MissionFSM::calculateClassBasedMedianAdjustment(double& median_dx, double& median_dy, std::string& target_class) {
     if (flight_data_samples.empty()) {
         ROS_WARN("No flight data samples available for median calculation");
         return false;
     }
     
-    // 统计各个类别的出现次数和对应的目标位置
-    std::map<std::string, std::vector<std::pair<double, double>>> class_targets;
-    std::map<std::string, int> class_counts;
+    // 获取当前检测到的类别
+    std::string current_detected_class = image_staff.image_data.detected_class;
     
-    for (const auto& sample : flight_data_samples) {
-        if (!sample.cur_class.data.empty() && 
-            (sample.cur_class.data == "bunker" || sample.cur_class.data == "car" || sample.cur_class.data == "bridge"|| sample.cur_class.data == "tant")) {
-            
-            class_targets[sample.cur_class.data].push_back(std::make_pair(sample.tar_x, sample.tar_y));
-            class_counts[sample.cur_class.data]++;
-        }
-    }
-    
-    if (class_counts.empty()) {
-        ROS_WARN("No valid class detections found in flight data");
+    if (current_detected_class.empty()) {
+        ROS_WARN("No current class detected for filtering");
         return false;
     }
     
-    // 找出出现次数最多的类别
-    std::string most_frequent_class;
-    int max_count = 0;
+    // 验证当前检测的类别是否为有效目标
+    if (current_detected_class != "bunker" && current_detected_class != "car" && 
+        current_detected_class != "bridge" && current_detected_class != "tant") {
+        ROS_WARN("Current detected class '%s' is not a valid target", current_detected_class.c_str());
+        return false;
+    }
     
-    ROS_INFO("Class detection statistics during flight:");
+    ROS_INFO("Filtering flight data for current detected class: %s", current_detected_class.c_str());
+    
+    // 统计所有类别的数据（用于调试信息）
+    std::map<std::string, int> class_counts;
+    std::vector<std::pair<double, double>> target_class_positions;
+    
+    // 筛选出与当前检测类别匹配的样本
+    for (const auto& sample : flight_data_samples) {
+        if (!sample.cur_class.data.empty()) {
+            class_counts[sample.cur_class.data]++;
+            
+            // 只收集与当前检测类别匹配的位置数据
+            if (sample.cur_class.data == current_detected_class) {
+                target_class_positions.push_back(std::make_pair(sample.tar_x, sample.tar_y));
+            }
+        }
+    }
+    
+    // 打印统计信息
+    ROS_INFO("Flight data statistics:");
     for (const auto& pair : class_counts) {
         ROS_INFO("  %s: %d detections", pair.first.c_str(), pair.second);
-        if (pair.second > max_count) {
-            max_count = pair.second;
-            most_frequent_class = pair.first;
-        }
     }
     
-    if (most_frequent_class.empty()) {
-        ROS_WARN("No dominant class found");
+    // 检查是否有足够的目标类别数据
+    if (target_class_positions.empty()) {
+        ROS_WARN("No samples found for current detected class '%s' in flight data", current_detected_class.c_str());
         return false;
     }
     
-    dominant_class = most_frequent_class;
-    ROS_INFO("Dominant class: %s with %d detections", dominant_class.c_str(), max_count);
+    if (target_class_positions.size() < 3) {
+        ROS_WARN("Only %zu samples found for class '%s', may not be reliable for median calculation", 
+                 target_class_positions.size(), current_detected_class.c_str());
+        // 可以选择继续计算或返回false，这里选择继续
+    }
     
-    // 计算该类别对应的目标位置中位数
-    auto& targets = class_targets[most_frequent_class];
-    
+    // 提取X和Y坐标
     std::vector<double> tar_x_values, tar_y_values;
-    for (const auto& target : targets) {
-        tar_x_values.push_back(target.first);
-        tar_y_values.push_back(target.second);
+    for (const auto& position : target_class_positions) {
+        tar_x_values.push_back(position.first);
+        tar_y_values.push_back(position.second);
     }
     
     // 计算中位数的lambda函数
@@ -1363,9 +1382,41 @@ bool MissionFSM::calculateClassBasedMedianAdjustment(double& median_dx, double& 
     
     median_dx = calculateMedian(tar_x_values);
     median_dy = calculateMedian(tar_y_values);
+    target_class = current_detected_class;
     
-    ROS_INFO("Calculated median position for class '%s' from %zu samples: x=%.3f, y=%.3f", 
-             dominant_class.c_str(), targets.size(), median_dx, median_dy);
+    ROS_INFO("Calculated median position for current detected class '%s' from %zu samples: x=%.3f, y=%.3f", 
+             target_class.c_str(), target_class_positions.size(), median_dx, median_dy);
+    
+    // 可选：打印位置数据的分布情况（用于调试）
+    if (target_class_positions.size() > 1) {
+        // 计算标准差以评估数据的离散程度
+        double mean_x = 0, mean_y = 0;
+        for (const auto& pos : target_class_positions) {
+            mean_x += pos.first;
+            mean_y += pos.second;
+        }
+        mean_x /= target_class_positions.size();
+        mean_y /= target_class_positions.size();
+        
+        double var_x = 0, var_y = 0;
+        for (const auto& pos : target_class_positions) {
+            var_x += (pos.first - mean_x) * (pos.first - mean_x);
+            var_y += (pos.second - mean_y) * (pos.second - mean_y);
+        }
+        var_x /= target_class_positions.size();
+        var_y /= target_class_positions.size();
+        
+        double std_x = sqrt(var_x);
+        double std_y = sqrt(var_y);
+        
+        ROS_INFO("Position data distribution - Mean: (%.3f, %.3f), Std: (%.3f, %.3f)", 
+                 mean_x, mean_y, std_x, std_y);
+        
+        // 如果标准差太大，发出警告
+        if (std_x > 0.5 || std_y > 0.5) {
+            ROS_WARN("High position variance detected - median may not be reliable");
+        }
+    }
     
     return true;
 }
