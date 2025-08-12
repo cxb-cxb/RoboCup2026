@@ -494,7 +494,7 @@ void MissionFSM::process()
                     droping_second = true;
                     // image_staff.image_data.detected_class=  class_staff.classfiy_data.data;
                 }
-                if(droping_second && getLengthBetweenPoints(pose_data.pose_local.pose.position,Adjust_point.pose.position)<0.3)
+                if(droping_second && getLengthBetweenPoints(pose_data.pose_local.pose.position,Adjust_point.pose.position)<0.15)
                 {
                     if (image_staff.image_data.detected_class != "bridge" && image_staff.image_data.detected_class != "car" && image_staff.image_data.detected_class != "bunker" && !((mission_num == 1 && goods_num == 3) || (mission_num == 2 && goods_num == 2) || (mission_num == 3 && goods_num == 1)))                    
                     {
@@ -888,7 +888,10 @@ void MissionFSM::process()
                 // land_point.pose.position.z = -0.01;
 
                 //测试点
-                land_point.pose.position = cross_point_02.pose.position;
+                land_point.pose.position.x = cross_point_02.pose.position.x;
+                land_point.pose.position.y = cross_point_02.pose.position.y;
+                land_point.pose.position.z = 0;
+
                 land_point.pose.orientation = cross_point_02.pose.orientation;
                 // land_point.pose.orientation.x = 0;
                 // land_point.pose.orientation.y = 0;
