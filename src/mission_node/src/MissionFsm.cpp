@@ -1291,7 +1291,7 @@ void MissionFSM::collectFlightData() {
     if (!is_collecting_data) return;
     
     // 检查是否有有效的相机数据
-    if (image_staff.image_data.cx != 0 || image_staff.image_data.cy != 0 || (!image_staff.image_data.detected_class.empty()) && checkWithCount(image_staff.image_data.detected_class))
+    if ((image_staff.image_data.cx != 0 || image_staff.image_data.cy != 0) && (!image_staff.image_data.detected_class.empty()) && checkWithCount(image_staff.image_data.detected_class))    
     {
         double temp_dx, temp_dy, temp_dz;
         computeAdjustment(image_staff.image_data.cx, image_staff.image_data.cy, 
