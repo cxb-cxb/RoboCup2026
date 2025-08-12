@@ -37,14 +37,14 @@ class MissionFSM
         void pose_pub(const std::vector<geometry_msgs::PoseStamped>& target_points,int flag);
         bool first_pub(const std::vector<geometry_msgs::PoseStamped>& points);
         void enableEmergency();
-        void pid_control();
+        // void pid_control();
         void Ser_pub(uint8_t num);
         void computeAdjustment(double u, double v, double depth, const geometry_msgs::Quaternion& ros_quat, 
             double& delta_x, double& delta_y, double& delta_z);
         double quaternionToYaw(const geometry_msgs::Quaternion& quat);
         double getLengthBetweenPoints(geometry_msgs::Point a, geometry_msgs::Point b,
             double *out_err_x = nullptr, double *out_err_y = nullptr, double *out_err_z = nullptr);
-        float constrain(float value, float min_val, float max_val);
+        // float constrain(float value, float min_val, float max_val);
 
         double getYawDifference(const geometry_msgs::Quaternion& quat1, 
                             const geometry_msgs::Quaternion& quat2);
@@ -54,6 +54,11 @@ class MissionFSM
 
         double getYawDifferenceDegrees(const geometry_msgs::Quaternion& quat1, 
                                     const geometry_msgs::Quaternion& quat2);
+        // 新增：数据采集相关公共函数
+        void startDataCollection();                    // 开始数据采集
+        void stopDataCollection();                     // 停止数据采集
+        void collectFlightData();                      // 在飞行过程中采集数据
+        bool calculateClassBasedMedianAdjustment(double& median_dx, double& median_dy, std::string& dominant_class); // 计算中位数调整值
 
         ros::Publisher position_pub;
         ros::Publisher takeoff_land_pub;
@@ -117,10 +122,12 @@ class MissionFSM
             ros::Time timestamp;
             DeltaPair(double x, double y, ros::Time t) : delta_x(x), delta_y(y), timestamp(t) {}
         };
+        // 新增：飞行数据样本结构体
         struct FlightDataSample {
-            double delta_x;                          // x方向调整量
-            double delta_y;                          // y方向调整量
-            std_msgs::String cur_class;              //类别
+            double tar_x;                          // x目标位置
+            double tar_y;                          // y目标位置
+            std_msgs::String cur_class;
+            ros::Time timestamp;                     // 时间戳
             geometry_msgs::Point drone_position;     // 无人机位置（可选，用于调试）
         };
         std::vector<DeltaPair> delta_vector;
@@ -191,6 +198,10 @@ class MissionFSM
         float last_target_x;
         float last_target_y;
         std::queue<uint8_t> Drop_queue;
+        // 新增：数据采集相关成员变量
+        bool is_collecting_data;                       // 是否正在采集数据的标志
+        std::vector<FlightDataSample> flight_data_samples; // 飞行过程中采集的数据样本
+        ros::Time data_collection_start_time;          // 数据采集开始时间
 };
 
 #endif
