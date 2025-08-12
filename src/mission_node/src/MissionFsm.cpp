@@ -504,8 +504,21 @@ void MissionFSM::process()
                 
                         // 更新当前类别为主要检测到的类别
                         current_class.data = target_class;
-                        printf("Using filtered median for class '%s' - x:%.3f, y:%.3f\n", 
-                        target_class.c_str(), median_x, median_y);
+                        if ( target_class == "car")
+                        {
+                            dropped_classes.erase("car");
+                        }
+                        else if (target_class == "bunker")
+                        {
+                            dropped_classes.erase("bunker");
+                        }
+                        else if (target_class == "bridge")
+                        {
+                            dropped_classes.erase("bridge");
+                        }
+
+                        printf("Using filtered median for class '%s' - x:%.3f, y:%.3f\n remain class's count is %ld\n", 
+                        target_class.c_str(), median_x, median_y,dropped_classes.size());
                        
                         ROS_INFO("Applied median adjustment based on current detection: %s", target_class.c_str()); image_staff.image_data.detected_class;                
 
@@ -536,20 +549,6 @@ void MissionFSM::process()
                     droping_second = true;
                 }
                 // image_staff.image_data.detected_class=  class_staff.classfiy_data.data;
-                if (image_staff.image_data.detected_class == "car")
-                {
-                    dropped_classes.erase("car");
-                }
-                else if (image_staff.image_data.detected_class == "bunker")
-                {
-                    dropped_classes.erase("bunker");
-                }
-                else if (image_staff.image_data.detected_class == "bridge")
-                {
-                    dropped_classes.erase("bridge");
-                }
-
-                
                 if(droping_second && getLengthBetweenPoints(pose_data.pose_local.pose.position,Adjust_point.pose.position)<0.15)
                 {
                     if (image_staff.image_data.detected_class != "bridge" && image_staff.image_data.detected_class != "car" && image_staff.image_data.detected_class != "bunker" && !((mission_num == 1 && goods_num == 3) || (mission_num == 2 && goods_num == 2) || (mission_num == 3 && goods_num == 1)))                    
