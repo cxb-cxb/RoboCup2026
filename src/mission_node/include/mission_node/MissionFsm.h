@@ -117,6 +117,12 @@ class MissionFSM
             ros::Time timestamp;
             DeltaPair(double x, double y, ros::Time t) : delta_x(x), delta_y(y), timestamp(t) {}
         };
+        struct FlightDataSample {
+            double delta_x;                          // x方向调整量
+            double delta_y;                          // y方向调整量
+            std_msgs::String cur_class;              //类别
+            geometry_msgs::Point drone_position;     // 无人机位置（可选，用于调试）
+        };
         std::vector<DeltaPair> delta_vector;
         enum class DroneState {
             INIT,
