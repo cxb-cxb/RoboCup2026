@@ -82,12 +82,17 @@ MissionFSM::MissionFSM() : rate(20.0) {
     // dynamic_position.pose.orientation.w = 1;
     //current_state = DroneState::DROPING;
 
+
+
+    
+		//一定要记得控制器改
+
     cross_point_02.header.frame_id = "camera_init";
     // cross_point_02.pose.position.x = 9.0;
     // cross_point_02.pose.position.y = -0.65;
     // cross_point_02.pose.position.z = 0.6;
-    cross_point_02.pose.position.x = 0.48;//9.1;
-    cross_point_02.pose.position.y = 9.1;//-0.48;
+    cross_point_02.pose.position.x = 1.91;//9.1;
+    cross_point_02.pose.position.y = 9.0;//-0.48;
     cross_point_02.pose.position.z = 0.6;
     cross_point_02.pose.orientation.x = 0;
     cross_point_02.pose.orientation.y = 0;
@@ -561,12 +566,16 @@ void MissionFSM::process()
                     else 
                     {
                         printf("success\n");
+                        ros::Duration(1.0).sleep();
                         if(static_cast<int>(Drop_queue.size()) == 3 && second_adjust)
                         {
                             //根据第一个进行调整 :C
                             computeAdjustment(image_staff.image_data.cx,image_staff.image_data.cy,pose_data.pose_local.pose.position.z ,pose_data.pose_local.pose.orientation,delta_x, delta_y,delta_z);
                             Adjust_point.pose.position.x = delta_x + pose_data.pose_local.pose.position.x+0.2;
                             Adjust_point.pose.position.y = delta_y + pose_data.pose_local.pose.position.y ;
+                            printf("x:%f\n",Adjust_point.pose.position.x);
+                            printf("y:%f\n",Adjust_point.pose.position.y);
+
                             Adjust_point.pose.position.z = 0.3;
                             Adjust_point.pose.orientation.x = 0;
                             Adjust_point.pose.orientation.y = 0;
@@ -607,6 +616,8 @@ void MissionFSM::process()
                             // Adjust_point.pose.orientation.y = 0;
                             // Adjust_point.pose.orientation.z = 0;
                             // Adjust_point.pose.orientation.w = 1;
+                            printf("x:%f\n",Adjust_point.pose.position.x);
+                            printf("y:%f\n",Adjust_point.pose.position.y);
                             pos_pub.publish(Adjust_point);
                             second_adjust = false;
                             droping_second = false;
@@ -633,6 +644,8 @@ void MissionFSM::process()
                             // Adjust_point.pose.orientation.y = 0;
                             // Adjust_point.pose.orientation.z = 0;
                             // Adjust_point.pose.orientation.w = 1;
+                            printf("x:%f\n",Adjust_point.pose.position.x);
+                            printf("y:%f\n",Adjust_point.pose.position.y);
                             pos_pub.publish(Adjust_point);
                             second_adjust = false;
                             droping_second = false;
@@ -947,78 +960,33 @@ void MissionFSM::process()
                 // land_point.pose.position.x = cross_point.pose.position.x;
                 // land_point.pose.position.y = cross_point.pose.position.y;
                 // land_point.pose.position.z = -0.01;
-
-                //测试点
-                land_point.pose.position.x = cross_point_02.pose.position.x;
-                land_point.pose.position.y = cross_point_02.pose.position.y;
-                land_point.pose.position.z = 0;
-
-                land_point.pose.orientation = cross_point_02.pose.orientation;
-                // land_point.pose.orientation.x = 0;
-                // land_point.pose.orientation.y = 0;
-                // land_point.pose.orientation.z =0;
-                // land_point.pose.orientation.w = 1;
-                current_state = current_state= DroneState::FINISH;
-                pos_pub.publish(land_point);
-                ROS_INFO("--LANDING---");
-            // if(qr_num.datas[2] == "left")
-            // {
-            //     ROS_INFO("LAND");
-            //     // position_pub.publish(decide_left);
-            //     pos_pub.publish(decide_left);
-            //     land_point.pose.position.x = decide_left.pose.position.x;
-            //     land_point.pose.position.y = decide_left.pose.position.y;
-            //     land_point.pose.position.z = 1.0;
-            //     current_state= DroneState::FINISH;
-            // }
-            // if(qr_num.datas[2] == "right")
-            // {
-            //     ROS_INFO("LAND");
-            //     // position_pub.publish(decide_right);
-            //     pos_pub.publish(decide_right);
-            //     land_point.pose.position.x = decide_right.pose.position.x;
-            //     land_point.pose.position.y = decide_right.pose.position.y;
-            //     land_point.pose.position.z = 1.0;
-
-            //     current_state= DroneState::FINISH;
-            // }
+                if(!image_staff.image_data.detected_class.empty()) //|| !class_staff.class_data.classify_class.empty())
+                {
+                    computeAdjustment(image_staff.image_data.cx,image_staff.image_data.cy,pose_data.pose_local.pose.position.z ,pose_data.pose_local.pose.orientation,delta_x, delta_y,delta_z);
+                    Adjust_point.pose.position.x = delta_x + pose_data.pose_local.pose.position.x;
+                    Adjust_point.pose.position.y = delta_y + pose_data.pose_local.pose.position.y;
+                    Adjust_point.pose.position.z = 0;
+                    pos_pub.publish(Adjust_point);
+                    ROS_INFO("---LANDING---");
+                    current_state = DroneState::FINISH;
+                }
+                else
+                {
+                    //测试点
+                    land_point.pose.position.x = cross_point_02.pose.position.x;
+                    land_point.pose.position.y = cross_point_02.pose.position.y;
+                    land_point.pose.position.z = 0;
+                    land_point.pose.orientation = cross_point_02.pose.orientation;
+                    // land_point.pose.orientation.x = 0;
+                    // land_point.pose.orientation.y = 0;
+                    // land_point.pose.orientation.z =0;
+                    // land_point.pose.orientation.w = 1;
+                    current_state = DroneState::FINISH;
+                    pos_pub.publish(land_point);
+                    ROS_INFO("--LANDING---");
+                }
             break;
-            
         case DroneState::FINISH:
-            // if(std::abs(pose_data.pose_local.pose.position.x - land_point.pose.position.x)<0.05 && std::abs(pose_data.pose_local.pose.position.y - land_point.pose.position.y)<0.05 && std::abs(pose_data.pose_local.pose.position.z - 1.0)<0.05)
-            // {
-            //     ros::Duration(1.0).sleep();
-            //     if(qr_num.datas[2] == "left")
-            //     {
-            //         ROS_INFO("LAND");
-            //         land_point.pose.position.x = decide_left.pose.position.x;
-            //         land_point.pose.position.y = decide_left.pose.position.y;
-            //         land_point.pose.position.z = 0.0;
-            //         land_point.pose.orientation.x = 0;
-            //         land_point.pose.orientation.y = 0;
-            //         land_point.pose.orientation.z = 0;
-            //         land_point.pose.orientation.w = 1; 
-            //         pos_pub.publish(land_point);
-               
-            //     }
-            //     if(qr_num.datas[2] == "right")
-            //     {
-            //         ROS_INFO("LAND");
-            //         land_point.pose.position.x = decide_right.pose.position.x;
-            //         land_point.pose.position.y = decide_right.pose.position.y;
-            //         land_point.pose.position.z = 0.0;
-            //         land_point.pose.orientation.x = 0;
-            //         land_point.pose.orientation.y = 0;
-            //         land_point.pose.orientation.z = 0;
-            //         land_point.pose.orientation.w = 1; 
-            //         pos_pub.publish(land_point);
-
-            //     }
-            //     // land_point.pose.position.x = pose_data.pose_local.pose.position.x;
-            //     // land_point.pose.position.y = pose_data.pose_local.pose.position.y;
-            //     // land_point.pose.position.z = 0.0;
-            //     // pos_pub.publish(land_point);
-            // }
             if(std::abs(pose_data.pose_local.pose.position.z - 0)<0.05)
             {
                 ros::Duration(1.0);
