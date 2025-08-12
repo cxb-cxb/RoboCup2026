@@ -59,7 +59,7 @@ class MissionFSM
         void stopDataCollection();                     // 停止数据采集
         void collectFlightData();                      // 在飞行过程中采集数据
         bool calculateClassBasedMedianAdjustment(double& median_dx, double& median_dy, std::string& dominant_class); // 计算中位数调整值
-
+        bool checkWithCount(const std::string& class_name);
         ros::Publisher position_pub;
         ros::Publisher takeoff_land_pub;
         ros::Publisher pos_pub;
@@ -198,6 +198,8 @@ class MissionFSM
         float last_target_x;
         float last_target_y;
         std::queue<uint8_t> Drop_queue;
+        std::set<std::string> dropped_classes;
+        // std::queue<>
         // 新增：数据采集相关成员变量
         bool is_collecting_data;                       // 是否正在采集数据的标志
         std::vector<FlightDataSample> flight_data_samples; // 飞行过程中采集的数据样本

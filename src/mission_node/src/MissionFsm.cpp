@@ -53,6 +53,10 @@ MissionFSM::MissionFSM() : rate(20.0) {
     goods_num = 3;
     last_target_x=0;
     last_target_y=0;
+    dropped_classes.insert("car");
+    dropped_classes.insert("bridge");
+    dropped_classes.insert("bunker");
+    // dropped_classes.push_back("car");
 
 
     is_collecting_data = false;
@@ -484,7 +488,6 @@ void MissionFSM::process()
                     // 停止数据采集
                     // 停止数据采集
                     stopDataCollection();
-                    
                     // 使用基于类别统计的中位数进行微调
                     double median_x, median_y;
                     std::string target_class;            
@@ -533,6 +536,19 @@ void MissionFSM::process()
                     droping_second = true;
                 }
                 // image_staff.image_data.detected_class=  class_staff.classfiy_data.data;
+                if (image_staff.image_data.detected_class == "car")
+                {
+                    dropped_classes.erase("car");
+                }
+                else if (image_staff.image_data.detected_class == "bunker")
+                {
+                    dropped_classes.erase("bunker");
+                }
+                else if (image_staff.image_data.detected_class == "bridge")
+                {
+                    dropped_classes.erase("bridge");
+                }
+
                 
                 if(droping_second && getLengthBetweenPoints(pose_data.pose_local.pose.position,Adjust_point.pose.position)<0.15)
                 {
@@ -1276,7 +1292,7 @@ void MissionFSM::collectFlightData() {
     if (!is_collecting_data) return;
     
     // 检查是否有有效的相机数据
-    if (image_staff.image_data.cx != 0 || image_staff.image_data.cy != 0 || (!image_staff.image_data.detected_class.empty()))
+    if (image_staff.image_data.cx != 0 || image_staff.image_data.cy != 0 || (!image_staff.image_data.detected_class.empty()) && checkWithCount(image_staff.image_data.detected_class))
     {
         double temp_dx, temp_dy, temp_dz;
         computeAdjustment(image_staff.image_data.cx, image_staff.image_data.cy, 
@@ -1419,4 +1435,13 @@ bool MissionFSM::calculateClassBasedMedianAdjustment(double& median_dx, double& 
     }
     
     return true;
+}
+
+bool MissionFSM::checkWithCount(const std::string& class_name) {
+    // count() 对于 set 来说只能返回 0 或 1 (因为set不允许重复)
+    // 0 = 不存在, 1 = 存在
+    return dropped_classes.count(class_name) > 0;
+    
+    // 或者更简洁地写成:
+    // return dropped_classes.count(class_name);  // 0为false, 1为true
 }
