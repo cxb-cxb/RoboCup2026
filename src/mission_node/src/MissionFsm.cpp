@@ -35,12 +35,10 @@ MissionFSM::MissionFSM() : rate(20.0) {
     current_state = DroneState::INIT;
     // current_state = DroneState::DECIDE_CROSS;
     current_drone_state = DyDropState::TRACKING;
-    Drop_queue.push('C');
     Drop_queue.push('P');
+    Drop_queue.push('C');
     Drop_queue.push('U');
     mission_num = 0;
-    linear_x_p = 0.3;
-    linear_y_p = 0.3;
     // linear_x_d = linear_y_d = 0.05;
     droping_flag = true ;
     droping_second = false;
@@ -298,6 +296,7 @@ void MissionFSM::process()
                 ego_contral = false;
                 ROS_INFO("--sending--");
                 ros::Duration(1.0).sleep();
+                
             }
             pos_pub.publish(dynamic_position);          
             ROS_INFO("---decideing---");
@@ -392,7 +391,7 @@ void MissionFSM::process()
         case DroneState::DEBUG02:
             Debug_point.pose.position.x = 2.0;
             Debug_point.pose.position.y = 0.0;
-            Debug_point.pose.position.z = 0.3;
+            Debug_point.pose.position.z = 0.6;
                 //yaw角设置
             Debug_point.pose.orientation.x = 0;
             Debug_point.pose.orientation.y = 0;
@@ -422,6 +421,7 @@ void MissionFSM::process()
             if (std::abs(pose_data.pose_local.pose.position.z - 1.0 < 0.05))
             {
                 ros::Duration(1.0).sleep();
+                ros::spinOnce();
                 current_state = DroneState::FINISH_Dynamic;
             }
             break;
@@ -567,7 +567,8 @@ void MissionFSM::process()
                     {
                         printf("success\n");
                         ros::Duration(1.0).sleep();
-                        if(static_cast<int>(Drop_queue.size()) == 3 && second_adjust)
+                        ros::spinOnce();
+                        if(Drop_queue.front() == 'C' && second_adjust)
                         {
                             //根据第一个进行调整 :C
                             computeAdjustment(image_staff.image_data.cx,image_staff.image_data.cy,pose_data.pose_local.pose.position.z ,pose_data.pose_local.pose.orientation,delta_x, delta_y,delta_z);
@@ -576,7 +577,7 @@ void MissionFSM::process()
                             printf("x:%f\n",Adjust_point.pose.position.x);
                             printf("y:%f\n",Adjust_point.pose.position.y);
 
-                            Adjust_point.pose.position.z = 0.3;
+                            Adjust_point.pose.position.z = 0.25;
                             Adjust_point.pose.orientation.x = 0;
                             Adjust_point.pose.orientation.y = 0;
                             Adjust_point.pose.orientation.z = 0;
@@ -584,7 +585,6 @@ void MissionFSM::process()
                             ROS_INFO("Drop_queue size: %zu", Drop_queue.size());
                             // Adjust_point.pose.position.x =  pose_data.pose_local.pose.position.x + 0.2;
                             // Adjust_point.pose.position.y =  pose_data.pose_local.pose.position.y ;
-                            // Adjust_point.pose.position.z =  0.3;
                             // //yaw角设置
                             // Adjust_point.pose.orientation.x = 0;
                             // Adjust_point.pose.orientation.y = 0;
@@ -595,21 +595,20 @@ void MissionFSM::process()
                             droping_second = false;
                             ROS_INFO("3");
                         }
-                        else if(static_cast<int>(Drop_queue.size()) == 2 && second_adjust)
+                        else if(Drop_queue.front() == 'P' && second_adjust)
                         {
                             //根据第二个进行调整 :U
                             ROS_INFO("Drop_queue size: %zu", Drop_queue.size());
                             computeAdjustment(image_staff.image_data.cx,image_staff.image_data.cy,pose_data.pose_local.pose.position.z ,pose_data.pose_local.pose.orientation,delta_x, delta_y,delta_z);
                             Adjust_point.pose.position.x = delta_x + pose_data.pose_local.pose.position.x ;
-                            Adjust_point.pose.position.y = delta_y + pose_data.pose_local.pose.position.y +0.2;
-                            Adjust_point.pose.position.z = 0.3;
+                            Adjust_point.pose.position.y = delta_y + pose_data.pose_local.pose.position.y +0.3;
+                            Adjust_point.pose.position.z = 0.25;
                             Adjust_point.pose.orientation.x = 0;
                             Adjust_point.pose.orientation.y = 0;
                             Adjust_point.pose.orientation.z = 0;
                             Adjust_point.pose.orientation.w = 1;
                             // Adjust_point.pose.position.x =  pose_data.pose_local.pose.position.x -0.2;
                             // Adjust_point.pose.position.y =  pose_data.pose_local.pose.position.y  ;
-                            // Adjust_point.pose.position.z =  0.3;
                             // // Adjust_point.pose.position.z =  0.5;
                             // // //yaw角设置
                             // Adjust_point.pose.orientation.x = 0;
@@ -623,21 +622,20 @@ void MissionFSM::process()
                             droping_second = false;
                             ROS_INFO("2");
                         }
-                        else if(static_cast<int>(Drop_queue.size()) == 1 && second_adjust)
+                        else if(Drop_queue.front() == 'U' && second_adjust)
                         {
                             //根据第二个进行调整 :U
                             ROS_INFO("Drop_queue size: %zu", Drop_queue.size());
                             computeAdjustment(image_staff.image_data.cx,image_staff.image_data.cy,pose_data.pose_local.pose.position.z ,pose_data.pose_local.pose.orientation,delta_x, delta_y,delta_z);
                             Adjust_point.pose.position.x = delta_x + pose_data.pose_local.pose.position.x-0.2 ;
                             Adjust_point.pose.position.y = delta_y + pose_data.pose_local.pose.position.y ;
-                            Adjust_point.pose.position.z = 0.3;
+                            Adjust_point.pose.position.z = 0.25;
                             Adjust_point.pose.orientation.x = 0;
                             Adjust_point.pose.orientation.y = 0;
                             Adjust_point.pose.orientation.z = 0;
                             Adjust_point.pose.orientation.w = 1;
                             // Adjust_point.pose.position.x =  pose_data.pose_local.pose.position.x -0.2;
                             // Adjust_point.pose.position.y =  pose_data.pose_local.pose.position.y  ;
-                            // Adjust_point.pose.position.z =  0.3;
                             // // Adjust_point.pose.position.z =  0.5;
                             // // //yaw角设置
                             // Adjust_point.pose.orientation.x = 0;
@@ -653,7 +651,7 @@ void MissionFSM::process()
                         }
                     }
                 }
-                if(std::abs(pose_data.pose_local.pose.position.z - 0.3) < 0.05 && std::abs(pose_data.pose_local.pose.position.x - Adjust_point.pose.position.x) <0.03 && std::abs(pose_data.pose_local.pose.position.y - Adjust_point.pose.position.y)<0.03)
+                if(std::abs(pose_data.pose_local.pose.position.z - 0.25) < 0.05 && std::abs(pose_data.pose_local.pose.position.x - Adjust_point.pose.position.x) <0.03 && std::abs(pose_data.pose_local.pose.position.y - Adjust_point.pose.position.y)<0.03)
                 { 
 
                     ROS_INFO_THROTTLE(1.0, "Data: %s", current_class.data.c_str());
@@ -664,7 +662,8 @@ void MissionFSM::process()
                         droping_flag =  true;
                         droping_second = true;
                         second_adjust = true;
-                        ros::Duration(1.0).sleep();
+                        ros::Duration(1.5).sleep();
+                        ros::spinOnce();
                         current_state = DroneState::TRACKING_WAYPOINT;
                         hight_point.pose.position.x = pose_data.pose_local.pose.position.x;
                         hight_point.pose.position.y = pose_data.pose_local.pose.position.y;
@@ -686,7 +685,8 @@ void MissionFSM::process()
                         // goods_num--;   
                         droping_second = true;
                         second_adjust = true;
-                        ros::Duration(1.0).sleep();
+                        ros::Duration(1.5).sleep();
+                        ros::spinOnce();
                         current_state = DroneState::TRACKING_WAYPOINT;
                         hight_point.pose.position.x = pose_data.pose_local.pose.position.x;
                         hight_point.pose.position.y = pose_data.pose_local.pose.position.y;
@@ -709,7 +709,8 @@ void MissionFSM::process()
                         // goods_num--;   
                         droping_second = true;
                         second_adjust = true;
-                        ros::Duration(1.0).sleep();
+                        ros::Duration(1.5).sleep();
+                        ros::spinOnce();
                         current_state = DroneState::TRACKING_WAYPOINT;
                         hight_point.pose.position.x = pose_data.pose_local.pose.position.x;
                         hight_point.pose.position.y = pose_data.pose_local.pose.position.y;
@@ -728,7 +729,8 @@ void MissionFSM::process()
                         Ser_pub(Drop_queue.front());
                         Drop_queue.pop();
                         ROS_INFO("Droping Finsh ");
-                        ros::Duration(1.0).sleep();
+                        ros::Duration(1.5).sleep();
+                        ros::spinOnce();
                         droping_flag =  true;
                         droping_second = true;
                         second_adjust = true;
@@ -756,7 +758,8 @@ void MissionFSM::process()
                         droping_flag =  true;
                         droping_second = true;
                         second_adjust = true;
-                        ros::Duration(1.0).sleep();
+                        ros::Duration(1.5).sleep();
+                        ros::spinOnce();
                         current_state = DroneState::TRACKING_WAYPOINT;
                         hight_point.pose.position.x = pose_data.pose_local.pose.position.x;
                         hight_point.pose.position.y = pose_data.pose_local.pose.position.y;
@@ -780,7 +783,9 @@ void MissionFSM::process()
                         droping_flag =  true;
                         droping_second = true;
                         second_adjust = true;
-                        ros::Duration(1.0).sleep();
+                        ros::Duration(1.5).sleep();
+                        ros::spinOnce();
+
                         current_state = DroneState::TRACKING_WAYPOINT;
                         hight_point.pose.position.x = pose_data.pose_local.pose.position.x;
                         hight_point.pose.position.y = pose_data.pose_local.pose.position.y;
@@ -892,6 +897,8 @@ void MissionFSM::process()
             {
                 cross_pub.publish(cross_point);
                 ros::Duration(1.0).sleep();
+                ros::spinOnce();
+
             }
             pos_pub.publish(cross_point);
             current_state = DroneState::JUDGE_CROSS;
@@ -917,7 +924,10 @@ void MissionFSM::process()
             if (cross_judge)
             {
                 cross_pub.publish(cross_point_02);
+
                 ros::Duration(1.0).sleep();
+                ros::spinOnce();
+
             }
             pos_pub.publish(cross_point_02);
             current_state = DroneState::JUDGE_CROSS02;
@@ -940,6 +950,8 @@ void MissionFSM::process()
             {
                 cross_pub.publish(cross_point_03);
                 ros::Duration(1.0).sleep();
+                ros::spinOnce();
+
             }
             pos_pub.publish(cross_point_03);
             current_state = DroneState::JUDGE_CROSS03;
@@ -1249,7 +1261,7 @@ void MissionFSM::collectFlightData() {
     if (!is_collecting_data) return;
     
     // 检查是否有有效的相机数据
-    if ((image_staff.image_data.cx != 0 || image_staff.image_data.cy != 0) && (!image_staff.image_data.detected_class.empty()) && checkWithCount(image_staff.image_data.detected_class))    
+    if (image_staff.image_data.detected_class != "null" && (image_staff.image_data.cx != 0 && image_staff.image_data.cy != 0) && (!image_staff.image_data.detected_class.empty()) && checkWithCount(image_staff.image_data.detected_class))    
     {
         double temp_dx, temp_dy, temp_dz;
         computeAdjustment(image_staff.image_data.cx, image_staff.image_data.cy, 
