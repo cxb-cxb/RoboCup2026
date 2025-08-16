@@ -64,8 +64,8 @@ MissionFSM::MissionFSM() : rate(20.0) {
     // cross_point.pose.position.x = 9.0;
     // cross_point.pose.position.y = 1.95;
     // cross_point.pose.position.z = 0.6;
-    cross_point.pose.position.x = -2.0;//9.0;
-    cross_point.pose.position.y = 9.0;//2.0;
+    cross_point.pose.position.x = -2.85;//9.0;
+    cross_point.pose.position.y = 8.17;//2.0;
     cross_point.pose.position.z = 0.6;
     cross_point.pose.orientation.x = 0;
     cross_point.pose.orientation.y = 0;
@@ -89,8 +89,8 @@ MissionFSM::MissionFSM() : rate(20.0) {
     // cross_point_02.pose.position.x = 9.0;
     // cross_point_02.pose.position.y = -0.65;
     // cross_point_02.pose.position.z = 0.6;
-    cross_point_02.pose.position.x = 1.91;//9.1;
-    cross_point_02.pose.position.y = 9.0;//-0.48;
+    cross_point_02.pose.position.x = 3.26;//9.1;
+    cross_point_02.pose.position.y = 8.23;//-0.48;
     cross_point_02.pose.position.z = 0.6;
     cross_point_02.pose.orientation.x = 0;
     cross_point_02.pose.orientation.y = 0;
@@ -458,8 +458,8 @@ void MissionFSM::process()
             }
             break; 
         case DroneState::FINISH_DROP:
-            drop_finish_point.pose.position.x = -2.37;//7.4;
-            drop_finish_point.pose.position.y = 7.4;//2.37;
+            drop_finish_point.pose.position.x = -2.84;
+            drop_finish_point.pose.position.y = 6.37;
             drop_finish_point.pose.position.z = 1.0;
             drop_finish_point.pose.orientation.x = 0;
             drop_finish_point.pose.orientation.y = 0;
