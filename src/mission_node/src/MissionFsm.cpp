@@ -154,8 +154,8 @@ MissionFSM::MissionFSM() : rate(20.0) {
 
     // 第1个目标点
     geometry_msgs::PoseStamped target_3;
-    target_3.pose.position.x = 2.55;//1.76;
-    target_3.pose.position.y = 1.76;//-2.55;
+    target_3.pose.position.x = -1.5;//1.76;
+    target_3.pose.position.y = 2.3;//-2.55;
     target_3.pose.position.z = 1.0;
     //yaw角设置1
     target_3.pose.orientation.x = 0;
@@ -167,8 +167,8 @@ MissionFSM::MissionFSM() : rate(20.0) {
 
     // 第2个目标点
     geometry_msgs::PoseStamped target_4;
-    target_4.pose.position.x = 1.7;//4.5;
-    target_4.pose.position.y = 4.5;//-1.7;
+    target_4.pose.position.x = 2.0;//4.5;
+    target_4.pose.position.y = 2.8;//-1.7;
     target_4.pose.position.z = 1.0;
 
     target_4.pose.orientation.x = 0;
@@ -178,9 +178,9 @@ MissionFSM::MissionFSM() : rate(20.0) {
     target_points.push_back(target_4);
        // 第3个目标点
     geometry_msgs::PoseStamped target_5;
-    target_5.pose.position.x = -2.32;//2.46;
+    target_5.pose.position.x = 1.0;//2.46;
 
-    target_5.pose.position.y = 2.46;//2.32;
+    target_5.pose.position.y = 6.0;//2.32;
 
     target_5.pose.position.z = 1.0;
     //yaw角设置
@@ -192,8 +192,8 @@ MissionFSM::MissionFSM() : rate(20.0) {
 
     // 第4个目标点
     geometry_msgs::PoseStamped target_1;
-    target_1.pose.position.x = -1.3;//4.6;
-    target_1.pose.position.y = 4.6;//1.3;
+    target_1.pose.position.x = -2.0;//4.6;
+    target_1.pose.position.y = 4.8;//1.3;
     target_1.pose.position.z = 1.0;
 
     //yaw角设置
