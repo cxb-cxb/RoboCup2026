@@ -35,9 +35,9 @@ MissionFSM::MissionFSM() : rate(20.0) {
     current_state = DroneState::INIT;
     // current_state = DroneState::DECIDE_CROSS;
     current_drone_state = DyDropState::TRACKING;
+    Drop_queue.push('U');
     Drop_queue.push('P');
     Drop_queue.push('C');
-    Drop_queue.push('U');
     mission_num = 0;
     // linear_x_d = linear_y_d = 0.05;
     droping_flag = true ;
@@ -577,7 +577,7 @@ void MissionFSM::process()
                             printf("x:%f\n",Adjust_point.pose.position.x);
                             printf("y:%f\n",Adjust_point.pose.position.y);
 
-                            Adjust_point.pose.position.z = 0.25;
+                            Adjust_point.pose.position.z = 0.2;
                             Adjust_point.pose.orientation.x = 0;
                             Adjust_point.pose.orientation.y = 0;
                             Adjust_point.pose.orientation.z = 0;
@@ -602,7 +602,7 @@ void MissionFSM::process()
                             computeAdjustment(image_staff.image_data.cx,image_staff.image_data.cy,pose_data.pose_local.pose.position.z ,pose_data.pose_local.pose.orientation,delta_x, delta_y,delta_z);
                             Adjust_point.pose.position.x = delta_x + pose_data.pose_local.pose.position.x ;
                             Adjust_point.pose.position.y = delta_y + pose_data.pose_local.pose.position.y +0.3;
-                            Adjust_point.pose.position.z = 0.25;
+                            Adjust_point.pose.position.z = 0.2;
                             Adjust_point.pose.orientation.x = 0;
                             Adjust_point.pose.orientation.y = 0;
                             Adjust_point.pose.orientation.z = 0;
@@ -629,7 +629,7 @@ void MissionFSM::process()
                             computeAdjustment(image_staff.image_data.cx,image_staff.image_data.cy,pose_data.pose_local.pose.position.z ,pose_data.pose_local.pose.orientation,delta_x, delta_y,delta_z);
                             Adjust_point.pose.position.x = delta_x + pose_data.pose_local.pose.position.x-0.2 ;
                             Adjust_point.pose.position.y = delta_y + pose_data.pose_local.pose.position.y ;
-                            Adjust_point.pose.position.z = 0.25;
+                            Adjust_point.pose.position.z = 0.2;
                             Adjust_point.pose.orientation.x = 0;
                             Adjust_point.pose.orientation.y = 0;
                             Adjust_point.pose.orientation.z = 0;
@@ -651,7 +651,7 @@ void MissionFSM::process()
                         }
                     }
                 }
-                if(std::abs(pose_data.pose_local.pose.position.z - 0.25) < 0.05 && std::abs(pose_data.pose_local.pose.position.x - Adjust_point.pose.position.x) <0.03 && std::abs(pose_data.pose_local.pose.position.y - Adjust_point.pose.position.y)<0.03)
+                if(std::abs(pose_data.pose_local.pose.position.z - 0.2) < 0.05 && std::abs(pose_data.pose_local.pose.position.x - Adjust_point.pose.position.x) <0.03 && std::abs(pose_data.pose_local.pose.position.y - Adjust_point.pose.position.y)<0.03)
                 { 
 
                     ROS_INFO_THROTTLE(1.0, "Data: %s", current_class.data.c_str());
