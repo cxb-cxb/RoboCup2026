@@ -556,7 +556,7 @@ void MissionFSM::process()
                 // image_staff.image_data.detected_class=  class_staff.classfiy_data.data;
                 if(droping_second && getLengthBetweenPoints(pose_data.pose_local.pose.position,Adjust_point.pose.position)<0.15)
                 {
-                    if (image_staff.image_data.detected_class != "bridge" && image_staff.image_data.detected_class != "car" && image_staff.image_data.detected_class != "bunker" && !((mission_num == 1 && goods_num == 3) || (mission_num == 2 && goods_num == 2) || (mission_num == 3 && goods_num == 1)))                    
+                    if (image_staff.image_data.detected_class != "bridge" && image_staff.image_data.detected_class != "car" && !((mission_num == 1 && goods_num == 3) || (mission_num == 2 && goods_num == 2) || (mission_num == 3 && goods_num == 1)))                    
                     {
                         current_state = DroneState::TRACKING_WAYPOINT;
                         mission_num+=1;  
@@ -700,31 +700,31 @@ void MissionFSM::process()
                         goods_num--;
                         startDataCollection();
                     }
-                    if(mission_num == 1)
-                    {
-                        Ser_pub(Drop_queue.front());
-                        Drop_queue.pop();
-                        ROS_INFO("Droping Finsh ");
-                        droping_flag =  true;
-                        // goods_num--;   
-                        droping_second = true;
-                        second_adjust = true;
-                        ros::Duration(1.5).sleep();
-                        ros::spinOnce();
-                        current_state = DroneState::TRACKING_WAYPOINT;
-                        hight_point.pose.position.x = pose_data.pose_local.pose.position.x;
-                        hight_point.pose.position.y = pose_data.pose_local.pose.position.y;
-                        hight_point.pose.position.z = 1.0;
-                        hight_point.pose.orientation.x = 0;
-                        hight_point.pose.orientation.y = 0;
-                        hight_point.pose.orientation.z = 0;
-                        hight_point.pose.orientation.w = 1;
-                        pos_pub.publish(hight_point);
-                        mission_num+=1;
-                        goods_num--;
-                        startDataCollection();
-                    }
-                    if(current_class.data =="bridge" && mission_num != 4 && mission_num != 3 && mission_num !=2)
+                    // if(mission_num == 1)
+                    // {
+                    //     Ser_pub(Drop_queue.front());
+                    //     Drop_queue.pop();
+                    //     ROS_INFO("Droping Finsh ");
+                    //     droping_flag =  true;
+                    //     // goods_num--;   
+                    //     droping_second = true;
+                    //     second_adjust = true;
+                    //     ros::Duration(1.5).sleep();
+                    //     ros::spinOnce();
+                    //     current_state = DroneState::TRACKING_WAYPOINT;
+                    //     hight_point.pose.position.x = pose_data.pose_local.pose.position.x;
+                    //     hight_point.pose.position.y = pose_data.pose_local.pose.position.y;
+                    //     hight_point.pose.position.z = 1.0;
+                    //     hight_point.pose.orientation.x = 0;
+                    //     hight_point.pose.orientation.y = 0;
+                    //     hight_point.pose.orientation.z = 0;
+                    //     hight_point.pose.orientation.w = 1;
+                    //     pos_pub.publish(hight_point);
+                    //     mission_num+=1;
+                    //     goods_num--;
+                    //     startDataCollection();
+                    // }
+                    if(current_class.data =="bridge" && mission_num != 4 && mission_num != 3 )
                     {
                         Ser_pub(Drop_queue.front());
                         Drop_queue.pop();
@@ -749,7 +749,7 @@ void MissionFSM::process()
                         startDataCollection();
                         // current_class.data = "";
                     }
-                    if(current_class.data == "car" && mission_num != 4 && mission_num != 3  && mission_num !=2)
+                    if(current_class.data == "car" && mission_num != 4 && mission_num != 3)
                     {
                         Ser_pub(Drop_queue.front());
                         Drop_queue.pop();
@@ -774,32 +774,32 @@ void MissionFSM::process()
                         printf("num:%d\n",goods_num);
                         startDataCollection();
                     }     
-                    if(current_class.data == "bunker" && mission_num != 4 && mission_num != 3  && mission_num !=2)
-                    {
-                        Ser_pub(Drop_queue.front());
-                        Drop_queue.pop();
-                        // current_class.data = "";
-                        ROS_INFO("Droping Finsh ");
-                        droping_flag =  true;
-                        droping_second = true;
-                        second_adjust = true;
-                        ros::Duration(1.5).sleep();
-                        ros::spinOnce();
+                    // if(current_class.data == "bunker" && mission_num != 4 && mission_num != 3)
+                    // {
+                    //     Ser_pub(Drop_queue.front());
+                    //     Drop_queue.pop();
+                    //     // current_class.data = "";
+                    //     ROS_INFO("Droping Finsh ");
+                    //     droping_flag =  true;
+                    //     droping_second = true;
+                    //     second_adjust = true;
+                    //     ros::Duration(1.5).sleep();
+                    //     ros::spinOnce();
 
-                        current_state = DroneState::TRACKING_WAYPOINT;
-                        hight_point.pose.position.x = pose_data.pose_local.pose.position.x;
-                        hight_point.pose.position.y = pose_data.pose_local.pose.position.y;
-                        hight_point.pose.position.z = 1.0;
-                        hight_point.pose.orientation.x = 0;
-                        hight_point.pose.orientation.y = 0;
-                        hight_point.pose.orientation.z = 0;
-                        hight_point.pose.orientation.w = 1;
-                        pos_pub.publish(hight_point);
-                        mission_num+=1;
-                        goods_num--;
-                        printf("num:%d\n",goods_num);
-                        startDataCollection();
-                    }              
+                    //     current_state = DroneState::TRACKING_WAYPOINT;
+                    //     hight_point.pose.position.x = pose_data.pose_local.pose.position.x;
+                    //     hight_point.pose.position.y = pose_data.pose_local.pose.position.y;
+                    //     hight_point.pose.position.z = 1.0;
+                    //     hight_point.pose.orientation.x = 0;
+                    //     hight_point.pose.orientation.y = 0;
+                    //     hight_point.pose.orientation.z = 0;
+                    //     hight_point.pose.orientation.w = 1;
+                    //     pos_pub.publish(hight_point);
+                    //     mission_num+=1;
+                    //     goods_num--;
+                    //     printf("num:%d\n",goods_num);
+                    //     startDataCollection();
+                    // }              
                 }                     
             }
             else
