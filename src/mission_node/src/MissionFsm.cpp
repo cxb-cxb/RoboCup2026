@@ -35,9 +35,9 @@ MissionFSM::MissionFSM() : rate(20.0) {
     current_state = DroneState::INIT;
     // current_state = DroneState::DECIDE_CROSS;
     current_drone_state = DyDropState::TRACKING;
-    Drop_queue.push('U');
-    Drop_queue.push('P');
     Drop_queue.push('C');
+    Drop_queue.push('P');
+    Drop_queue.push('U');
     mission_num = 0;
     // linear_x_d = linear_y_d = 0.05;
     droping_flag = true ;
@@ -48,12 +48,12 @@ MissionFSM::MissionFSM() : rate(20.0) {
     cargo_dropped = false;
     ego_contral = true;
     droping_i = 300; 
-    goods_num = 3;
+    goods_num = 2;
     last_target_x=0;
     last_target_y=0;
     dropped_classes.insert("car");
     dropped_classes.insert("bridge");
-    dropped_classes.insert("bunker");
+    // dropped_classes.insert("bunker");
     // dropped_classes.push_back("car");
 
 
@@ -154,8 +154,8 @@ MissionFSM::MissionFSM() : rate(20.0) {
 
     // 第1个目标点
     geometry_msgs::PoseStamped target_3;
-    target_3.pose.position.x = -1.5;//1.76;
-    target_3.pose.position.y = 2.3;//-2.55;
+    target_3.pose.position.x = 1.67;//1.76;
+    target_3.pose.position.y = 1.45;//-2.55;
     target_3.pose.position.z = 1.0;
     //yaw角设置1
     target_3.pose.orientation.x = 0;
@@ -167,8 +167,8 @@ MissionFSM::MissionFSM() : rate(20.0) {
 
     // 第2个目标点
     geometry_msgs::PoseStamped target_4;
-    target_4.pose.position.x = 2.0;//4.5;
-    target_4.pose.position.y = 2.8;//-1.7;
+    target_4.pose.position.x = 0.95;//4.5;
+    target_4.pose.position.y = 3.72;//-1.7;
     target_4.pose.position.z = 1.0;
 
     target_4.pose.orientation.x = 0;
@@ -178,9 +178,9 @@ MissionFSM::MissionFSM() : rate(20.0) {
     target_points.push_back(target_4);
        // 第3个目标点
     geometry_msgs::PoseStamped target_5;
-    target_5.pose.position.x = 1.0;//2.46;
+    target_5.pose.position.x = -1.73;//2.46;
 
-    target_5.pose.position.y = 6.0;//2.32;
+    target_5.pose.position.y = 1.66;//2.32;
 
     target_5.pose.position.z = 1.0;
     //yaw角设置
@@ -192,8 +192,8 @@ MissionFSM::MissionFSM() : rate(20.0) {
 
     // 第4个目标点
     geometry_msgs::PoseStamped target_1;
-    target_1.pose.position.x = -2.0;//4.6;
-    target_1.pose.position.y = 4.8;//1.3;
+    target_1.pose.position.x = -1.71;//4.6;
+    target_1.pose.position.y = 3.82;//1.3;
     target_1.pose.position.z = 1.0;
 
     //yaw角设置
@@ -458,8 +458,8 @@ void MissionFSM::process()
             }
             break; 
         case DroneState::FINISH_DROP:
-            drop_finish_point.pose.position.x = -2.84;
-            drop_finish_point.pose.position.y = 6.37;
+            drop_finish_point.pose.position.x = -1.44;
+            drop_finish_point.pose.position.y = 6.33;
             drop_finish_point.pose.position.z = 1.0;
             drop_finish_point.pose.orientation.x = 0;
             drop_finish_point.pose.orientation.y = 0;
@@ -476,7 +476,8 @@ void MissionFSM::process()
             if (std::abs(pose_data.pose_local.pose.position.x - drop_finish_point.pose.position.x) <0.05 && std::abs(pose_data.pose_local.pose.position.z - drop_finish_point.pose.position.z)<0.05 && std::abs(pose_data.pose_local.pose.position.y - drop_finish_point.pose.position.y)<0.05)
             {
                 ROS_INFO("DECIDE CROSS");
-                current_state = DroneState::CROSS_LAND;
+                current_state = DroneState::DECIDE_DYNAMIC;
+                // current_state = DroneState::LAND;
             }
             
             break; 
@@ -513,10 +514,10 @@ void MissionFSM::process()
                         {
                             dropped_classes.erase("car");
                         }
-                        else if (target_class == "bunker")
-                        {
-                            dropped_classes.erase("bunker");
-                        }
+                        // else if (target_class == "bunker")
+                        // {
+                        //     dropped_classes.erase("bunker");
+                        // }
                         else if (target_class == "bridge")
                         {
                             dropped_classes.erase("bridge");
@@ -556,7 +557,7 @@ void MissionFSM::process()
                 // image_staff.image_data.detected_class=  class_staff.classfiy_data.data;
                 if(droping_second && getLengthBetweenPoints(pose_data.pose_local.pose.position,Adjust_point.pose.position)<0.15)
                 {
-                    if (image_staff.image_data.detected_class != "bridge" && image_staff.image_data.detected_class != "car" && !((mission_num == 1 && goods_num == 3) || (mission_num == 2 && goods_num == 2) || (mission_num == 3 && goods_num == 1)))                    
+                    if (image_staff.image_data.detected_class != "bridge" && image_staff.image_data.detected_class != "car" && !((mission_num == 2 && goods_num == 2) || (mission_num == 3 && goods_num == 1)))                    
                     {
                         current_state = DroneState::TRACKING_WAYPOINT;
                         mission_num+=1;  
@@ -622,38 +623,37 @@ void MissionFSM::process()
                             droping_second = false;
                             ROS_INFO("2");
                         }
-                        else if(Drop_queue.front() == 'U' && second_adjust)
-                        {
-                            //根据第二个进行调整 :U
-                            ROS_INFO("Drop_queue size: %zu", Drop_queue.size());
-                            computeAdjustment(image_staff.image_data.cx,image_staff.image_data.cy,pose_data.pose_local.pose.position.z ,pose_data.pose_local.pose.orientation,delta_x, delta_y,delta_z);
-                            Adjust_point.pose.position.x = delta_x + pose_data.pose_local.pose.position.x-0.2 ;
-                            Adjust_point.pose.position.y = delta_y + pose_data.pose_local.pose.position.y ;
-                            Adjust_point.pose.position.z = 0.2;
-                            Adjust_point.pose.orientation.x = 0;
-                            Adjust_point.pose.orientation.y = 0;
-                            Adjust_point.pose.orientation.z = 0;
-                            Adjust_point.pose.orientation.w = 1;
-                            // Adjust_point.pose.position.x =  pose_data.pose_local.pose.position.x -0.2;
-                            // Adjust_point.pose.position.y =  pose_data.pose_local.pose.position.y  ;
-                            // // Adjust_point.pose.position.z =  0.5;
-                            // // //yaw角设置
-                            // Adjust_point.pose.orientation.x = 0;
-                            // Adjust_point.pose.orientation.y = 0;
-                            // Adjust_point.pose.orientation.z = 0;
-                            // Adjust_point.pose.orientation.w = 1;
-                            printf("x:%f\n",Adjust_point.pose.position.x);
-                            printf("y:%f\n",Adjust_point.pose.position.y);
-                            pos_pub.publish(Adjust_point);
-                            second_adjust = false;
-                            droping_second = false;
-                            ROS_INFO("1");
-                        }
+                        // else if(Drop_queue.front() == 'U' && second_adjust)
+                        // {
+                        //     //根据第二个进行调整 :U
+                        //     ROS_INFO("Drop_queue size: %zu", Drop_queue.size());
+                        //     computeAdjustment(image_staff.image_data.cx,image_staff.image_data.cy,pose_data.pose_local.pose.position.z ,pose_data.pose_local.pose.orientation,delta_x, delta_y,delta_z);
+                        //     Adjust_point.pose.position.x = delta_x + pose_data.pose_local.pose.position.x-0.2 ;
+                        //     Adjust_point.pose.position.y = delta_y + pose_data.pose_local.pose.position.y ;
+                        //     Adjust_point.pose.position.z = 0.2;
+                        //     Adjust_point.pose.orientation.x = 0;
+                        //     Adjust_point.pose.orientation.y = 0;
+                        //     Adjust_point.pose.orientation.z = 0;
+                        //     Adjust_point.pose.orientation.w = 1;
+                        //     // Adjust_point.pose.position.x =  pose_data.pose_local.pose.position.x -0.2;
+                        //     // Adjust_point.pose.position.y =  pose_data.pose_local.pose.position.y  ;
+                        //     // // Adjust_point.pose.position.z =  0.5;
+                        //     // // //yaw角设置
+                        //     // Adjust_point.pose.orientation.x = 0;
+                        //     // Adjust_point.pose.orientation.y = 0;
+                        //     // Adjust_point.pose.orientation.z = 0;
+                        //     // Adjust_point.pose.orientation.w = 1;
+                        //     printf("x:%f\n",Adjust_point.pose.position.x);
+                        //     printf("y:%f\n",Adjust_point.pose.position.y);
+                        //     pos_pub.publish(Adjust_point);
+                        //     second_adjust = false;
+                        //     droping_second = false;
+                        //     ROS_INFO("1");
+                        // }
                     }
                 }
                 if(std::abs(pose_data.pose_local.pose.position.z - 0.2) < 0.05 && std::abs(pose_data.pose_local.pose.position.x - Adjust_point.pose.position.x) <0.03 && std::abs(pose_data.pose_local.pose.position.y - Adjust_point.pose.position.y)<0.03)
                 { 
-
                     ROS_INFO_THROTTLE(1.0, "Data: %s", current_class.data.c_str());
                     if(mission_num ==3)
                     {
@@ -846,9 +846,9 @@ void MissionFSM::process()
             {
                 // ros::Duration(1.0).sleep();
                 //测试状态
-                current_state = DroneState::LAND;
+                // current_state = DroneState::LAND;
                 //正式状态
-                // current_state = DroneState::CROSS_LAND;
+                current_state = DroneState::CROSS_LAND;
                 ego_contral = true;
             }           
             break; 
@@ -975,8 +975,8 @@ void MissionFSM::process()
                 if(true)
                 {
                     //测试点
-                    land_point.pose.position.x = cross_point_02.pose.position.x;
-                    land_point.pose.position.y = cross_point_02.pose.position.y;
+                    land_point.pose.position.x = pose_data.pose_local.pose.position.x;
+                    land_point.pose.position.y = pose_data.pose_local.pose.position.y;
                     land_point.pose.position.z = 0;
                     land_point.pose.orientation = cross_point_02.pose.orientation;
                     // land_point.pose.orientation.x = 0;
