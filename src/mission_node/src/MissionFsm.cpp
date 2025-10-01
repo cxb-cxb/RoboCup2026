@@ -53,9 +53,13 @@ MissionFSM::MissionFSM() : rate(20.0) {
     last_target_y=0;
     dropped_classes.insert("car");
     dropped_classes.insert("bridge");
-    // dropped_classes.insert("bunker");
+    dropped_classes.insert("random");
     // dropped_classes.push_back("car");
 
+
+    //random init
+    random_positions.clear();
+    use_random_median = false;
 
     is_collecting_data = false;
     flight_data_samples.clear();
@@ -64,8 +68,8 @@ MissionFSM::MissionFSM() : rate(20.0) {
     // cross_point.pose.position.x = 9.0;
     // cross_point.pose.position.y = 1.95;
     // cross_point.pose.position.z = 0.6;
-    cross_point.pose.position.x = -2.85;//9.0;
-    cross_point.pose.position.y = 8.17;//2.0;
+    cross_point.pose.position.x = -3.18;//9.0;
+    cross_point.pose.position.y = 8.0;//2.0;
     cross_point.pose.position.z = 0.6;
     cross_point.pose.orientation.x = 0;
     cross_point.pose.orientation.y = 0;
@@ -89,8 +93,8 @@ MissionFSM::MissionFSM() : rate(20.0) {
     // cross_point_02.pose.position.x = 9.0;
     // cross_point_02.pose.position.y = -0.65;
     // cross_point_02.pose.position.z = 0.6;
-    cross_point_02.pose.position.x = 3.26;//9.1;
-    cross_point_02.pose.position.y = 8.23;//-0.48;
+    cross_point_02.pose.position.x = 1.85;//9.1;
+    cross_point_02.pose.position.y = 8.0;//-0.48;
     cross_point_02.pose.position.z = 0.6;
     cross_point_02.pose.orientation.x = 0;
     cross_point_02.pose.orientation.y = 0;
@@ -154,8 +158,8 @@ MissionFSM::MissionFSM() : rate(20.0) {
 
     // 第1个目标点
     geometry_msgs::PoseStamped target_3;
-    target_3.pose.position.x = 1.67;//1.76;
-    target_3.pose.position.y = 1.45;//-2.55;
+    target_3.pose.position.x = 2.74;//1.76;
+    target_3.pose.position.y = 1.08;//-2.55;
     target_3.pose.position.z = 1.0;
     //yaw角设置1
     target_3.pose.orientation.x = 0;
@@ -167,8 +171,8 @@ MissionFSM::MissionFSM() : rate(20.0) {
 
     // 第2个目标点
     geometry_msgs::PoseStamped target_4;
-    target_4.pose.position.x = 0.95;//4.5;
-    target_4.pose.position.y = 3.72;//-1.7;
+    target_4.pose.position.x = 2.04;//4.5;
+    target_4.pose.position.y = 3.74;//-1.7;
     target_4.pose.position.z = 1.0;
 
     target_4.pose.orientation.x = 0;
@@ -178,9 +182,9 @@ MissionFSM::MissionFSM() : rate(20.0) {
     target_points.push_back(target_4);
        // 第3个目标点
     geometry_msgs::PoseStamped target_5;
-    target_5.pose.position.x = -1.73;//2.46;
+    target_5.pose.position.x = -0.76;//2.46;
 
-    target_5.pose.position.y = 1.66;//2.32;
+    target_5.pose.position.y = 3.48;//2.32;
 
     target_5.pose.position.z = 1.0;
     //yaw角设置
@@ -192,8 +196,8 @@ MissionFSM::MissionFSM() : rate(20.0) {
 
     // 第4个目标点
     geometry_msgs::PoseStamped target_1;
-    target_1.pose.position.x = -1.71;//4.6;
-    target_1.pose.position.y = 3.82;//1.3;
+    target_1.pose.position.x = -2.22;//4.6;
+    target_1.pose.position.y = 1.46;//1.3;
     target_1.pose.position.z = 1.0;
 
     //yaw角设置
@@ -283,8 +287,8 @@ void MissionFSM::process()
             // position_pub.publish(dynamic_position);
             //测试点
             //正式版
-            dynamic_position.pose.position.x =6.48;
-            dynamic_position.pose.position.y = -0.3;
+            dynamic_position.pose.position.x =0;
+            dynamic_position.pose.position.y = 5.75;
             dynamic_position.pose.position.z = 1.2;
             dynamic_position.pose.orientation.x = 0;
             dynamic_position.pose.orientation.y = 0;
@@ -332,8 +336,8 @@ void MissionFSM::process()
                 };
                 double median_dx = median(delta_x_samples);
                 double median_dy = median(delta_y_samples);
-                Adjust_point.pose.position.x = median_dx + pose_data.pose_local.pose.position.x - 0.2 ;
-                Adjust_point.pose.position.y = median_dy + pose_data.pose_local.pose.position.y ;
+                Adjust_point.pose.position.x = median_dx + pose_data.pose_local.pose.position.x;
+                Adjust_point.pose.position.y = median_dy + pose_data.pose_local.pose.position.y;
                 Adjust_point.pose.position.z = 0.6;
                 Adjust_point.pose.orientation.x = 0;
                 Adjust_point.pose.orientation.y = 0;
@@ -458,8 +462,8 @@ void MissionFSM::process()
             }
             break; 
         case DroneState::FINISH_DROP:
-            drop_finish_point.pose.position.x = -1.44;
-            drop_finish_point.pose.position.y = 6.33;
+            drop_finish_point.pose.position.x = -2.45;
+            drop_finish_point.pose.position.y = 5.0;
             drop_finish_point.pose.position.z = 1.0;
             drop_finish_point.pose.orientation.x = 0;
             drop_finish_point.pose.orientation.y = 0;
@@ -514,10 +518,10 @@ void MissionFSM::process()
                         {
                             dropped_classes.erase("car");
                         }
-                        // else if (target_class == "bunker")
-                        // {
-                        //     dropped_classes.erase("bunker");
-                        // }
+                        else if (target_class == "random")
+                        {
+                            dropped_classes.erase("random");
+                        }
                         else if (target_class == "bridge")
                         {
                             dropped_classes.erase("bridge");
@@ -557,7 +561,7 @@ void MissionFSM::process()
                 // image_staff.image_data.detected_class=  class_staff.classfiy_data.data;
                 if(droping_second && getLengthBetweenPoints(pose_data.pose_local.pose.position,Adjust_point.pose.position)<0.15)
                 {
-                    if (image_staff.image_data.detected_class != "bridge" && image_staff.image_data.detected_class != "car" && !((mission_num == 2 && goods_num == 2) || (mission_num == 3 && goods_num == 1)))                    
+                    if (image_staff.image_data.detected_class != "random" && image_staff.image_data.detected_class != "bridge" && image_staff.image_data.detected_class != "car" && !((mission_num == 2 && goods_num == 2) || (mission_num == 3 && goods_num == 1)))                    
                     {
                         current_state = DroneState::TRACKING_WAYPOINT;
                         mission_num+=1;  
@@ -601,8 +605,8 @@ void MissionFSM::process()
                             //根据第二个进行调整 :U
                             ROS_INFO("Drop_queue size: %zu", Drop_queue.size());
                             computeAdjustment(image_staff.image_data.cx,image_staff.image_data.cy,pose_data.pose_local.pose.position.z ,pose_data.pose_local.pose.orientation,delta_x, delta_y,delta_z);
-                            Adjust_point.pose.position.x = delta_x + pose_data.pose_local.pose.position.x ;
-                            Adjust_point.pose.position.y = delta_y + pose_data.pose_local.pose.position.y +0.3;
+                            Adjust_point.pose.position.x = delta_x + pose_data.pose_local.pose.position.x; //-0.2;
+                            Adjust_point.pose.position.y = delta_y + pose_data.pose_local.pose.position.y+0.25 ;
                             Adjust_point.pose.position.z = 0.2;
                             Adjust_point.pose.orientation.x = 0;
                             Adjust_point.pose.orientation.y = 0;
@@ -774,32 +778,32 @@ void MissionFSM::process()
                         printf("num:%d\n",goods_num);
                         startDataCollection();
                     }     
-                    // if(current_class.data == "bunker" && mission_num != 4 && mission_num != 3)
-                    // {
-                    //     Ser_pub(Drop_queue.front());
-                    //     Drop_queue.pop();
-                    //     // current_class.data = "";
-                    //     ROS_INFO("Droping Finsh ");
-                    //     droping_flag =  true;
-                    //     droping_second = true;
-                    //     second_adjust = true;
-                    //     ros::Duration(1.5).sleep();
-                    //     ros::spinOnce();
+                    if(current_class.data == "random" && mission_num != 4 && mission_num != 3)
+                    {
+                        Ser_pub(Drop_queue.front());
+                        Drop_queue.pop();
+                        // current_class.data = "";
+                        ROS_INFO("Droping Finsh ");
+                        droping_flag =  true;
+                        droping_second = true;
+                        second_adjust = true;
+                        ros::Duration(1.5).sleep();
+                        ros::spinOnce();
 
-                    //     current_state = DroneState::TRACKING_WAYPOINT;
-                    //     hight_point.pose.position.x = pose_data.pose_local.pose.position.x;
-                    //     hight_point.pose.position.y = pose_data.pose_local.pose.position.y;
-                    //     hight_point.pose.position.z = 1.0;
-                    //     hight_point.pose.orientation.x = 0;
-                    //     hight_point.pose.orientation.y = 0;
-                    //     hight_point.pose.orientation.z = 0;
-                    //     hight_point.pose.orientation.w = 1;
-                    //     pos_pub.publish(hight_point);
-                    //     mission_num+=1;
-                    //     goods_num--;
-                    //     printf("num:%d\n",goods_num);
-                    //     startDataCollection();
-                    // }              
+                        current_state = DroneState::TRACKING_WAYPOINT;
+                        hight_point.pose.position.x = pose_data.pose_local.pose.position.x;
+                        hight_point.pose.position.y = pose_data.pose_local.pose.position.y;
+                        hight_point.pose.position.z = 1.0;
+                        hight_point.pose.orientation.x = 0;
+                        hight_point.pose.orientation.y = 0;
+                        hight_point.pose.orientation.z = 0;
+                        hight_point.pose.orientation.w = 1;
+                        pos_pub.publish(hight_point);
+                        mission_num+=1;
+                        goods_num--;
+                        printf("num:%d\n",goods_num);
+                        startDataCollection();
+                    }              
                 }                     
             }
             else
@@ -821,8 +825,8 @@ void MissionFSM::process()
                      
         case DroneState::FINISH_Dynamic:
             //测试点
-            finish_Point.pose.position.x =0;
-            finish_Point.pose.position.y = 0;
+            finish_Point.pose.position.x =-3.23;
+            finish_Point.pose.position.y = 6.56;
             finish_Point.pose.position.z = 1.0;
             //正式点
             // finish_Point.pose.position.x =7.4;
@@ -858,8 +862,8 @@ void MissionFSM::process()
             // cross_land_point.pose.position.y = 2.3;
             // cross_land_point.pose.position.z = 0.6;
 
-            cross_land_point.pose.position.x= drop_finish_point.pose.position.x;
-            cross_land_point.pose.position.y= drop_finish_point.pose.position.y;
+            cross_land_point.pose.position.x= finish_Point.pose.position.x;
+            cross_land_point.pose.position.y= finish_Point.pose.position.y;
             cross_land_point.pose.position.z= 0.6;
             cross_land_point.pose.orientation.x = 0;
             cross_land_point.pose.orientation.y = 0;
@@ -908,7 +912,7 @@ void MissionFSM::process()
             break;
 
         case DroneState::JUDGE_CROSS:
-            if (getLengthBetweenPoints(pose_data.pose_local.pose.position,cross_point.pose.position) < 0.2)
+            if (getLengthBetweenPoints(pose_data.pose_local.pose.position,cross_point.pose.position) < 0.35)
             {
                 ROS_INFO("---success---");
                 current_state = DroneState::DECIDE_CROSS02;
@@ -924,15 +928,13 @@ void MissionFSM::process()
             if (cross_judge)
             {
                 cross_pub.publish(cross_point_02);
-
                 ros::Duration(1.0).sleep();
                 ros::spinOnce();
-
             }
             pos_pub.publish(cross_point_02);
             current_state = DroneState::JUDGE_CROSS02;
             ROS_INFO("-send-");
-            // cross_judge = false;
+            cross_judge = false;
             break;
 
         
@@ -941,6 +943,7 @@ void MissionFSM::process()
             {
                 ROS_INFO("---success---");
                 current_state = DroneState::LAND;
+
             }
             ROS_INFO("---gonging---");
             break;
@@ -1005,6 +1008,7 @@ void MissionFSM::pose_pub(const std::vector<geometry_msgs::PoseStamped>& target_
     static ros::Time last_request = ros::Time::now();  // 确保初始化
     ros::Time current_time = ros::Time::now();
     ros::Duration time_since_last_request = current_time - last_request;
+    static geometry_msgs::PoseStamped active_target;  // **新增：保存当前激活的目标点**
     // 检查 target_points 是否包含足够的点
     if (target_points.size() < 5) {
         ROS_ERROR("target_points size is less than 5. Current size: %zu", target_points.size());
@@ -1014,6 +1018,25 @@ void MissionFSM::pose_pub(const std::vector<geometry_msgs::PoseStamped>& target_
             last_request = current_time;
             if(trj_judge)
             {
+                 if (use_random_median) 
+                 {
+                    active_target = random_median_target;  // **保存random目标**
+                    position_pub.publish(random_median_target);
+                    pos_pub.publish(random_median_target);
+                    ROS_INFO("Using random median target instead of waypoint #%d", flag);
+                    
+                    // 重置标志,以便下次可以重新收集
+                    use_random_median = false;
+                    random_positions.clear();
+                } 
+                else 
+                {
+                    active_target = target_points[flag];  // **保存普通航点**
+                    position_pub.publish(target_points[flag]);
+                    pos_pub.publish(target_points[flag]);
+                }
+
+
                 position_pub.publish(target_points[flag]);
                 pos_pub.publish(target_points[flag]);
                 // class_staff.classfiy_data.data = "";
@@ -1022,19 +1045,24 @@ void MissionFSM::pose_pub(const std::vector<geometry_msgs::PoseStamped>& target_
                 //开启航点的采集
                 startDataCollection();
             }
-            pos_pub.publish(target_points[flag]);
+     // **修改: 根据是否使用random目标选择比较点**
+       // 使用保存的active_target进行位置判断
+        pos_pub.publish(active_target);
 
-            if(std::abs(pose_data.pose_local.pose.position.x - target_points[flag].pose.position.x )< 0.1 && std::abs(pose_data.pose_local.pose.position.y - target_points[flag].pose.position.y) < 0.1 && std::abs(pose_data.pose_local.pose.position.z - target_points[flag].pose.position.z)<0.1){  // 使用 flag - 1
-                current_state= DroneState::DROPING;
-                trj_judge = true;
-
-                //ROS_INFO("SUCCRSS");
-            }
+        if(std::abs(pose_data.pose_local.pose.position.x - active_target.pose.position.x) < 0.1 && 
+           std::abs(pose_data.pose_local.pose.position.y - active_target.pose.position.y) < 0.1 && 
+           std::abs(pose_data.pose_local.pose.position.z - active_target.pose.position.z) < 0.1) 
+        {
+            current_state = DroneState::DROPING;
+            trj_judge = true;
+        }
     }
 }
 
+
 //识别二维码的第一次目标点
-bool MissionFSM::first_pub(const std::vector<geometry_msgs::PoseStamped>& points) {
+bool MissionFSM::first_pub(const std::vector<geometry_msgs::PoseStamped>& points) 
+{
     static int flag = 1;
     static ros::Time last_request = ros::Time::now();  // 确保初始化
     bool judge = false;
@@ -1278,7 +1306,17 @@ void MissionFSM::collectFlightData() {
         sample.drone_position = pose_data.pose_local.pose.position;
         
         flight_data_samples.push_back(sample);
-        
+
+        if (image_staff.image_data.detected_class == "random") {
+            random_positions.push_back(std::make_pair(sample.tar_x, sample.tar_y));
+            ROS_INFO("Collected random position #%zu: (%.3f, %.3f)", 
+                     random_positions.size(), sample.tar_x, sample.tar_y);
+            
+            // 当收集到20个random位置后,计算中位数
+            if (random_positions.size() >= RANDOM_SAMPLE_THRESHOLD && !use_random_median) {
+                calculateRandomMedianTarget();
+            }
+        }
         // 可选：限制样本数量以避免内存过度使用
         if (flight_data_samples.size() > 1000) {
             flight_data_samples.erase(flight_data_samples.begin());
@@ -1303,7 +1341,7 @@ bool MissionFSM::calculateClassBasedMedianAdjustment(double& median_dx, double& 
     
     // 验证当前检测的类别是否为有效目标
     if (current_detected_class != "bunker" && current_detected_class != "car" && 
-        current_detected_class != "bridge" && current_detected_class != "tant") {
+        current_detected_class != "bridge" && current_detected_class != "tant" &&  current_detected_class != "random") {
         ROS_WARN("Current detected class '%s' is not a valid target", current_detected_class.c_str());
         return false;
     }
@@ -1413,4 +1451,62 @@ bool MissionFSM::checkWithCount(const std::string& class_name) {
     
     // 或者更简洁地写成:
     // return dropped_classes.count(class_name);  // 0为false, 1为true
+}
+
+
+void MissionFSM::calculateRandomMedianTarget() {
+    if (random_positions.size() < RANDOM_SAMPLE_THRESHOLD) {
+        ROS_WARN("Not enough random samples: %zu/%zu", 
+                 random_positions.size(), RANDOM_SAMPLE_THRESHOLD);
+        return;
+    }
+    
+    // 提取X和Y坐标
+    std::vector<double> x_values, y_values;
+    for (const auto& pos : random_positions) {
+        x_values.push_back(pos.first);
+        y_values.push_back(pos.second);
+    }
+    
+    // 计算中位数的lambda函数
+    auto calculateMedian = [](std::vector<double>& values) -> double {
+        if (values.empty()) return 0.0;
+        std::sort(values.begin(), values.end());
+        size_t n = values.size();
+        if (n % 2 == 0) {
+            return (values[n/2 - 1] + values[n/2]) / 2.0;
+        } else {
+            return values[n/2];
+        }
+    };
+    
+    double median_x = calculateMedian(x_values);
+    double median_y = calculateMedian(y_values);
+    
+    // 设置random中位数目标点
+    random_median_target.header.frame_id = "camera_init";
+    random_median_target.pose.position.x = median_x;
+    random_median_target.pose.position.y = median_y;
+    random_median_target.pose.position.z = 1.0;  // 保持飞行高度
+    random_median_target.pose.orientation.x = 0;
+    random_median_target.pose.orientation.y = 0;
+    random_median_target.pose.orientation.z = 0;
+    random_median_target.pose.orientation.w = 1;
+    
+    use_random_median = true;
+    
+    ROS_INFO("Calculated random median target from %zu samples: (%.3f, %.3f)", 
+             random_positions.size(), median_x, median_y);
+    
+    // 打印统计信息
+    double mean_x = 0, mean_y = 0;
+    for (const auto& pos : random_positions) {
+        mean_x += pos.first;
+        mean_y += pos.second;
+    }
+    mean_x /= random_positions.size();
+    mean_y /= random_positions.size();
+    
+    ROS_INFO("Random position statistics - Mean: (%.3f, %.3f), Median: (%.3f, %.3f)", 
+             mean_x, mean_y, median_x, median_y);
 }

@@ -59,6 +59,7 @@ class MissionFSM
         void stopDataCollection();                     // 停止数据采集
         void collectFlightData();                      // 在飞行过程中采集数据
         bool calculateClassBasedMedianAdjustment(double& median_dx, double& median_dy, std::string& dominant_class); // 计算中位数调整值
+        void calculateRandomMedianTarget();
         bool checkWithCount(const std::string& class_name);
         ros::Publisher position_pub;
         ros::Publisher takeoff_land_pub;
@@ -116,6 +117,13 @@ class MissionFSM
         mavros_msgs::PositionTarget Obj_vel; 
         geometry_msgs::PoseStamped drop_finish_point;
         geometry_msgs::PoseStamped decide_track;
+        //random_add value
+        // 添加这些成员变量
+        std::vector<std::pair<double, double>> random_positions;  // 存储random目标位置
+        const size_t RANDOM_SAMPLE_THRESHOLD = 20;  // 达到20个样本后使用中位数
+        bool use_random_median = false;  // 标记是否使用random中位数作为目标
+        geometry_msgs::PoseStamped random_median_target;  // 存储计算出的中位数目标点
+
         struct DeltaPair {
             double delta_x;
             double delta_y;
