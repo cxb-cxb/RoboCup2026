@@ -120,7 +120,7 @@ class MissionFSM
         //random_add value
         // 添加这些成员变量
         std::vector<std::pair<double, double>> random_positions;  // 存储random目标位置
-        const size_t RANDOM_SAMPLE_THRESHOLD = 20;  // 达到20个样本后使用中位数
+        const size_t RANDOM_SAMPLE_THRESHOLD = 10;  // 达到20个样本后使用中位数
         bool use_random_median = false;  // 标记是否使用random中位数作为目标
         geometry_msgs::PoseStamped random_median_target;  // 存储计算出的中位数目标点
 

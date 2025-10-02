@@ -437,7 +437,7 @@ void MissionFSM::process()
             if(mission_num < 4) //&& goods_num!=0)
             {
                 ROS_INFO("CONINTIUTE ");
-                if(std::abs(pose_data.pose_local.pose.position.z - 1.0) < 0.15)
+                if(std::abs(pose_data.pose_local.pose.position.z - 1.0) < 0.15 || std::abs(pose_data.pose_local.pose.position.z - 1.2) < 0.05)
                 {
                     ROS_INFO("----high----");
                     pose_pub(target_points,mission_num);
@@ -518,10 +518,10 @@ void MissionFSM::process()
                         {
                             dropped_classes.erase("car");
                         }
-                        else if (target_class == "random")
-                        {
-                            dropped_classes.erase("random");
-                        }
+                        // else if (target_class == "random")
+                        // {
+                        //     dropped_classes.erase("random");
+                        // }
                         else if (target_class == "bridge")
                         {
                             dropped_classes.erase("bridge");
@@ -559,16 +559,16 @@ void MissionFSM::process()
                     droping_second = true;
                 }
                 // image_staff.image_data.detected_class=  class_staff.classfiy_data.data;
-                if(droping_second && getLengthBetweenPoints(pose_data.pose_local.pose.position,Adjust_point.pose.position)<0.15)
+                if( droping_second && getLengthBetweenPoints(pose_data.pose_local.pose.position,Adjust_point.pose.position)<0.15)
                 {
-                    if (image_staff.image_data.detected_class != "random" && image_staff.image_data.detected_class != "bridge" && image_staff.image_data.detected_class != "car" && !((mission_num == 2 && goods_num == 2) || (mission_num == 3 && goods_num == 1)))                    
+                    if ( goods_num == 0 || (image_staff.image_data.detected_class != "random" && image_staff.image_data.detected_class != "bridge" && image_staff.image_data.detected_class != "car" && !((mission_num == 2 && goods_num == 2) || (mission_num == 3 && goods_num == 1))))                    
                     {
                         current_state = DroneState::TRACKING_WAYPOINT;
                         mission_num+=1;  
                         printf("null or not ");
                         droping_flag = true;
                     }
-                    else 
+                    else
                     {
                         printf("success\n");
                         ros::Duration(1.0).sleep();
@@ -680,7 +680,7 @@ void MissionFSM::process()
                         mission_num+=1;
                         startDataCollection();
                     }
-                    if(mission_num == 2)
+                    else if(mission_num == 2)
                     {
                         Ser_pub(Drop_queue.front());
                         Drop_queue.pop();
@@ -728,7 +728,7 @@ void MissionFSM::process()
                     //     goods_num--;
                     //     startDataCollection();
                     // }
-                    if(current_class.data =="bridge" && mission_num != 4 && mission_num != 3 )
+                    else if(current_class.data =="bridge" )
                     {
                         Ser_pub(Drop_queue.front());
                         Drop_queue.pop();
@@ -753,7 +753,7 @@ void MissionFSM::process()
                         startDataCollection();
                         // current_class.data = "";
                     }
-                    if(current_class.data == "car" && mission_num != 4 && mission_num != 3)
+                    else if(current_class.data == "car" )
                     {
                         Ser_pub(Drop_queue.front());
                         Drop_queue.pop();
@@ -778,7 +778,7 @@ void MissionFSM::process()
                         printf("num:%d\n",goods_num);
                         startDataCollection();
                     }     
-                    if(current_class.data == "random" && mission_num != 4 && mission_num != 3)
+                    else if(current_class.data == "random" )
                     {
                         Ser_pub(Drop_queue.front());
                         Drop_queue.pop();
@@ -1037,8 +1037,8 @@ void MissionFSM::pose_pub(const std::vector<geometry_msgs::PoseStamped>& target_
                 }
 
 
-                position_pub.publish(target_points[flag]);
-                pos_pub.publish(target_points[flag]);
+                // position_pub.publish(target_points[flag]);
+                // pos_pub.publish(target_points[flag]);
                 // class_staff.classfiy_data.data = "";
                 // class_staff.confidence_ = 0;
                 trj_judge = false;
@@ -1047,15 +1047,15 @@ void MissionFSM::pose_pub(const std::vector<geometry_msgs::PoseStamped>& target_
             }
      // **修改: 根据是否使用random目标选择比较点**
        // 使用保存的active_target进行位置判断
-        pos_pub.publish(active_target);
+            pos_pub.publish(active_target);
 
-        if(std::abs(pose_data.pose_local.pose.position.x - active_target.pose.position.x) < 0.1 && 
-           std::abs(pose_data.pose_local.pose.position.y - active_target.pose.position.y) < 0.1 && 
-           std::abs(pose_data.pose_local.pose.position.z - active_target.pose.position.z) < 0.1) 
-        {
-            current_state = DroneState::DROPING;
-            trj_judge = true;
-        }
+            if(std::abs(pose_data.pose_local.pose.position.x - active_target.pose.position.x) < 0.1 && 
+            std::abs(pose_data.pose_local.pose.position.y - active_target.pose.position.y) < 0.1 && 
+            std::abs(pose_data.pose_local.pose.position.z - active_target.pose.position.z) < 0.1) 
+            {
+                current_state = DroneState::DROPING;
+                trj_judge = true;
+            }
     }
 }
 
@@ -1307,7 +1307,8 @@ void MissionFSM::collectFlightData() {
         
         flight_data_samples.push_back(sample);
 
-        if (image_staff.image_data.detected_class == "random") {
+        if (image_staff.image_data.detected_class == "random") 
+        {
             random_positions.push_back(std::make_pair(sample.tar_x, sample.tar_y));
             ROS_INFO("Collected random position #%zu: (%.3f, %.3f)", 
                      random_positions.size(), sample.tar_x, sample.tar_y);
@@ -1482,18 +1483,23 @@ void MissionFSM::calculateRandomMedianTarget() {
     
     double median_x = calculateMedian(x_values);
     double median_y = calculateMedian(y_values);
-    
     // 设置random中位数目标点
-    random_median_target.header.frame_id = "camera_init";
+    // random_median_target.header.frame_id = "camera_init";
     random_median_target.pose.position.x = median_x;
     random_median_target.pose.position.y = median_y;
-    random_median_target.pose.position.z = 1.0;  // 保持飞行高度
+    random_median_target.pose.position.z = 1.2;  // 保持飞行高度
     random_median_target.pose.orientation.x = 0;
     random_median_target.pose.orientation.y = 0;
     random_median_target.pose.orientation.z = 0;
     random_median_target.pose.orientation.w = 1;
-    
-    use_random_median = true;
+    if (checkWithCount("random"))
+    {
+            
+        use_random_median = true;
+        dropped_classes.erase("random");
+
+    }
+
     
     ROS_INFO("Calculated random median target from %zu samples: (%.3f, %.3f)", 
              random_positions.size(), median_x, median_y);
