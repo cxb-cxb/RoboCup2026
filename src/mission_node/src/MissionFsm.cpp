@@ -391,7 +391,30 @@ void MissionFSM::process()
                 }
             }
             break;
-            
+        case DroneState::HIGH_DROP:
+            if(std::abs(pose_data.pose_local.pose.position.z - 1.0) < 0.05)
+            {
+
+                high_drop.pose.position.x = Adjust_point.pose.position.x;
+                high_drop.pose.position.y = Adjust_point.pose.position.y;
+                high_drop.pose.position.z = 0.5;
+                high_drop.pose.orientation.x = 0;
+                high_drop.pose.orientation.y = 0;
+                high_drop.pose.orientation.z = 0;
+                high_drop.pose.orientation.w = 1;
+                judge_start.data = 1;
+                judge_start_pub.publish(judge_start);
+                if (dynamic_staff.dynamic_judge.data)
+                {
+                    pos_pub.publish(high_drop);
+                    ROS_INFO("-----landing---");
+                    ros::Duration(0.3).sleep();
+                    Ser_pub('U');
+                    ROS_INFO("---DROP---");
+                    current_state = DroneState::HIGHING;
+                }
+            }
+            break;
         case DroneState::DEBUG02:
             Debug_point.pose.position.x = 2.0;
             Debug_point.pose.position.y = 0.0;

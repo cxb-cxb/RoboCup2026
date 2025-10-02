@@ -117,6 +117,8 @@ class MissionFSM
         mavros_msgs::PositionTarget Obj_vel; 
         geometry_msgs::PoseStamped drop_finish_point;
         geometry_msgs::PoseStamped decide_track;
+        geometry_msgs::PoseStamped high_drop;
+
         //random_add value
         // 添加这些成员变量
         std::vector<std::pair<double, double>> random_positions;  // 存储random目标位置
@@ -149,6 +151,7 @@ class MissionFSM
             DROPING,
             CROSS_LAND,
             HIGHING,
+            HIGH_DROP,
             FINISH_DROP,
             DECIDE_CROSS,
             DECIDE_CROSS02,
