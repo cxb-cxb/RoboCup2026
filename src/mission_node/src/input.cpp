@@ -118,3 +118,8 @@ void DynamicSub::Dynamic_CB(const std_msgs::Bool::ConstPtr& msg)
 {
     dynamic_judge = *msg;
 }
+void DirectionSub::Direct_CB(const std_msgs::UInt8::ConstPtr& msg)
+{
+    direct_sub = *msg;
+}
+

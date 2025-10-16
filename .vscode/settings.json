@@ -70,7 +70,9 @@
         "hash_set": "cpp",
         "shared_mutex": "cpp",
         "cfenv": "cpp",
-        "valarray": "cpp"
+        "valarray": "cpp",
+        "csetjmp": "cpp",
+        "codecvt": "cpp"
     },
     "python.autoComplete.extraPaths": [
         "/home/ek/RoboCup_2025/devel/lib/python3/dist-packages",

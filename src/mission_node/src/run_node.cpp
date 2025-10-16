@@ -9,6 +9,7 @@ int main(int argc, char **argv)
     ros::Rate rate(20.0);
     MissionFSM fsm;  // 声明 MissionFSM 类的实例
     // 订阅状态主题
+
     ros::Subscriber state_sub = nh.subscribe<mavros_msgs::State>("mavros/state",10,boost::bind(&StateSub::feed, &fsm.state_mission, _1));
     ros::Subscriber iamge_sub = nh.subscribe<mission_node::Bounding_box>("yolo/bounding_box",10,boost::bind(&ImageSub::Image_cb, &fsm.image_staff, _1));
     ros::Subscriber class_sub = nh.subscribe<mission_node::class_pub>("/yolo/classify",10,boost::bind(&ClassifySub::Classify_cb, &fsm.class_staff, _1));
@@ -21,6 +22,8 @@ int main(int argc, char **argv)
     ros::Subscriber qr_sub = nh.subscribe<std_msgs::String>("/qr_code_info",100, boost::bind(&QrSub::Qr_cb, &fsm.qr_num, _1));
     ros::Subscriber traj_judge_staff = nh.subscribe<std_msgs::UInt8>("/traj_start",10, boost::bind(&TrajSub::Traj_Sub, &fsm.traj_judge_staff, _1));
     ros::Subscriber dynamic_sub = nh.subscribe<std_msgs::Bool>("/delivery/drop_command",10, boost::bind(&DynamicSub::Dynamic_CB, &fsm.dynamic_staff, _1));
+
+    ros::Subscriber direct_sub = nh.subscribe<std_msgs::UInt8>("/delivery/direction",10, boost::bind(&DirectionSub::Direct_CB, &fsm.direct_flag, _1));
 
     fsm.position_pub = nh.advertise<geometry_msgs::PoseStamped>("/move_base_simple/goal",10);
     fsm.cross_pub = nh.advertise<geometry_msgs::PoseStamped>("/planner2/goal",10);

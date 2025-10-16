@@ -101,4 +101,12 @@ public:
     void Dynamic_CB(const std_msgs::Bool::ConstPtr& msg);
 
 };
+
+class DirectionSub
+{
+public:
+    std_msgs::UInt8 direct_sub;
+    void Direct_CB(const std_msgs::UInt8::ConstPtr& msg);
+
+};
 #endif

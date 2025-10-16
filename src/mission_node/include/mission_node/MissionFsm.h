@@ -61,6 +61,11 @@ class MissionFSM
         bool calculateClassBasedMedianAdjustment(double& median_dx, double& median_dy, std::string& dominant_class); // 计算中位数调整值
         void calculateRandomMedianTarget();
         bool checkWithCount(const std::string& class_name);
+        double Point_ToYAW(geometry_msgs::PoseStamped point_1,geometry_msgs::PoseStamped point_2);
+        void Point_ToYAW_WithQuaternion(geometry_msgs::PoseStamped point_1, 
+                                   geometry_msgs::PoseStamped point_2,
+                                   geometry_msgs::Quaternion& quaternion);
+        double calculateMovingDirection(const std::vector<geometry_msgs::Point>& positions);
         ros::Publisher position_pub;
         ros::Publisher takeoff_land_pub;
         ros::Publisher pos_pub;
@@ -80,6 +85,7 @@ class MissionFSM
         ImageSub image_staff;
         ClassifySub class_staff;
         ObjSub obj_staff;
+        DirectionSub direct_flag;
         mission_node::class_pub classify_debug;
         //mavros_msgs::PositionTarget setpoint_raw;
         //mavros_msgs::SetMode offb_set_mode;
@@ -97,7 +103,7 @@ class MissionFSM
         geometry_msgs::PoseStamped land_left;
         geometry_msgs::PoseStamped land_point;
         geometry_msgs::PoseStamped Debug_point;
-        // geometry_msgs::PoseStamped change_yaw;
+        geometry_msgs::PoseStamped change_yaw;
         geometry_msgs::PoseStamped cross_01;
         geometry_msgs::PoseStamped cross_circle;
         geometry_msgs::PoseStamped hight_point;//用于投货完成后回到1.2米的高度
@@ -113,16 +119,20 @@ class MissionFSM
         geometry_msgs::PoseStamped cross_point_02;
         geometry_msgs::PoseStamped cross_point_03;
         geometry_msgs::PoseStamped cross_land_point;
-        geometry_msgs::PoseStamped change_yaw_point;
+        // geometry_msgs::PoseStamped change_yaw_point;
         mavros_msgs::PositionTarget Obj_vel; 
         geometry_msgs::PoseStamped drop_finish_point;
         geometry_msgs::PoseStamped decide_track;
         geometry_msgs::PoseStamped high_drop;
+        //两个端点确定靶标的方向
+        geometry_msgs::PoseStamped duan_point_1;
+        geometry_msgs::PoseStamped duan_point_2;
+
 
         //random_add value
         // 添加这些成员变量
         std::vector<std::pair<double, double>> random_positions;  // 存储random目标位置
-        const size_t RANDOM_SAMPLE_THRESHOLD = 10;  // 达到20个样本后使用中位数
+        const size_t RANDOM_SAMPLE_THRESHOLD = 8;  // 达到20个样本后使用中位数
         bool use_random_median = false;  // 标记是否使用random中位数作为目标
         geometry_msgs::PoseStamped random_median_target;  // 存储计算出的中位数目标点
 
@@ -153,6 +163,8 @@ class MissionFSM
             HIGHING,
             HIGH_DROP,
             FINISH_DROP,
+            TO_RANDOM,
+            RANDDOM_DROPING,
             DECIDE_CROSS,
             DECIDE_CROSS02,
             DECIDE_CROSS03,
@@ -161,6 +173,7 @@ class MissionFSM
             JUDGE_CROSS03,
             DECIDE_DYNAMIC,
             DECIDE_DYNAMIC_02,
+            YAW_FINISH,
             DYNAMIC_DROP,
             CHANGE_YAW,
             // PREPARE_TUNNEL,
@@ -215,6 +228,11 @@ class MissionFSM
         bool is_collecting_data;                       // 是否正在采集数据的标志
         std::vector<FlightDataSample> flight_data_samples; // 飞行过程中采集的数据样本
         ros::Time data_collection_start_time;          // 数据采集开始时间
+
+        //移动靶标方向计算
+        bool is_sampling_yaw;
+        std::vector<geometry_msgs::Point> target_trajectory_samples;
+        ros::Time yaw_sampling_start_time;
 };
 
 #endif
