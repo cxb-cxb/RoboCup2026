@@ -135,6 +135,7 @@ add_executable(run_node
   src/run_node.cpp
   src/MissionFsm.cpp
   src/MissionParameters.cpp
+  src/CoverageSearchPlanner.cpp
   src/input.cpp
 )
 target_link_libraries(run_node ${catkin_LIBRARIES})
