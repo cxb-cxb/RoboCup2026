@@ -17,6 +17,15 @@ struct MissionParameters {
   double gravity = 9.8;
   double land_velocity = 0.2;
   double history_duration = 5.0;
+  double search_x_min = -4.0;
+  double search_x_max = 4.0;
+  double search_y_min = -4.0;
+  double search_y_max = 4.0;
+  double search_height = 1.0;
+  double search_footprint_x = 2.0;
+  double search_footprint_y = 1.5;
+  double search_overlap_ratio = 0.25;
+  int max_search_passes = 3;
 
   void load(const ros::NodeHandle& private_nh);
   void validate();

@@ -18,3 +18,14 @@ drop:
 
 filter:
   history_duration: 5.0
+
+search:
+  x_min: -4.0
+  x_max: 4.0
+  y_min: -4.0
+  y_max: 4.0
+  height: 1.0
+  footprint_x: 2.0
+  footprint_y: 1.5
+  overlap_ratio: 0.25
+  max_passes: 3
