@@ -14,7 +14,10 @@
 #include <algorithm>
 #include <mission_node/class_pub.h>
 #include <queue>
+#include <map>
+#include <set>
 #include "MissionParameters.h"
+#include "CoverageSearchPlanner.h"
 
 #ifndef _MISSIONFSM_H
 #define _MISSIONFSM_H
@@ -35,6 +38,7 @@ class MissionFSM
     public:
         MissionFSM();
         void process(); 
+        void GetParameters(const ros::NodeHandle& nh);
         void pose_pub(const std::vector<geometry_msgs::PoseStamped>& target_points,int flag);
         bool first_pub(const std::vector<geometry_msgs::PoseStamped>& points);
         void enableEmergency();
@@ -67,6 +71,7 @@ class MissionFSM
                                    geometry_msgs::PoseStamped point_2,
                                    geometry_msgs::Quaternion& quaternion);
         double calculateMovingDirection(const std::vector<geometry_msgs::Point>& positions);
+        //发布者声明
         ros::Publisher position_pub;
         ros::Publisher takeoff_land_pub;
         ros::Publisher pos_pub;
@@ -76,7 +81,7 @@ class MissionFSM
         ros::Publisher obj_pub;
         ros::ServiceClient arming_client; 
         ros::Publisher cross_pub;  
-
+        //订阅者声明
         StateSub state_mission;
         TrajSub traj_judge_staff;
         CircleSub circle_staff;
@@ -88,6 +93,9 @@ class MissionFSM
         ObjSub obj_staff;
         DirectionSub direct_flag;
         mission_node::class_pub classify_debug;
+        //参数服务器声明
+        
+
         //mavros_msgs::PositionTarget setpoint_raw;
         //mavros_msgs::SetMode offb_set_mode;
         //mavros_msgs::CommandBool arm_cmd;
@@ -160,6 +168,12 @@ class MissionFSM
             INIT,
             TAKEOFF,
             DECIDE_TRACK,
+            GENERATE_SEARCH,
+            SEARCHING,
+            APPROACH_DETECTED_TARGET,
+            SEARCH_TARGET_DROP,
+            RESUME_SEARCH,
+            SEARCH_FINISHED,
             CROSS_RING,
             DECIDE_LAND,
             TRACKING_WAYPOINT,
@@ -178,16 +192,8 @@ class MissionFSM
             JUDGE_CROSS,
             JUDGE_CROSS02,
             JUDGE_CROSS03,
-            DECIDE_DYNAMIC,
-            DECIDE_DYNAMIC_02,
-            YAW_FINISH,
-            DYNAMIC_DROP,
-            CHANGE_YAW,
             // PREPARE_TUNNEL,
-            FINISH_Dynamic,
-            DEBUG02,
             LAND,
-            DEBUG,
             FINISH
         };
         enum class DyDropState {
@@ -198,7 +204,28 @@ class MissionFSM
         };
 
     private:
+        bool isKnownTargetClass(const std::string& class_name) const;
+        bool isHighPriorityClass(const std::string& class_name) const;
+        void recordSearchDetection();
+        bool buildStableTarget(const std::string& class_name);
+        bool selectCachedLowPriorityTarget();
+        void beginSearchTarget(const std::string& class_name,
+                               const geometry_msgs::PoseStamped& target);
+        void completeSearchDrop();
+        void cancelSearchTarget();
+        void finishSearchMission();
+
         MissionParameters parameters_;
+        CoverageSearchPlanner search_planner_;
+        std::set<std::string> remaining_classes_;
+        std::map<std::string, std::vector<std::pair<double, double>>> target_samples_;
+        std::map<std::string, geometry_msgs::PoseStamped> cached_targets_;
+        geometry_msgs::PoseStamped active_search_target_;
+        std::string active_search_class_;
+        int completed_drops_;
+        int search_adjust_phase_;
+        ros::Time search_phase_started_;
+        bool search_goal_sent_;
         DroneState current_state;
         DyDropState current_drone_state;
         ros::Rate rate;
