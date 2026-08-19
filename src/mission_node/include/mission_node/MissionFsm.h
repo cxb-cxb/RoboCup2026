@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <mission_node/class_pub.h>
 #include <queue>
+#include "MissionParameters.h"
 
 #ifndef _MISSIONFSM_H
 #define _MISSIONFSM_H
@@ -127,12 +128,16 @@ class MissionFSM
         //两个端点确定靶标的方向
         geometry_msgs::PoseStamped duan_point_1;
         geometry_msgs::PoseStamped duan_point_2;
+        
+        geometry_msgs::PoseStamped final_mission;
 
 
         //random_add value
         // 添加这些成员变量
-        std::vector<std::pair<double, double>> random_positions;  // 存储random目标位置
-        const size_t RANDOM_SAMPLE_THRESHOLD = 8;  // 达到20个样本后使用中位数
+        std::vector<std::pair<double, double>> random_positions_1;  // 存储random目标位置
+        std::vector<std::pair<double, double>> random_positions_2;  // 存储tank目标位置
+
+        const size_t RANDOM_SAMPLE_THRESHOLD = 15;  // 达到20个样本后使用中位数
         bool use_random_median = false;  // 标记是否使用random中位数作为目标
         geometry_msgs::PoseStamped random_median_target;  // 存储计算出的中位数目标点
 
@@ -163,6 +168,8 @@ class MissionFSM
             HIGHING,
             HIGH_DROP,
             FINISH_DROP,
+            FINAL_DROPING,
+            FINAL_MISSION,
             TO_RANDOM,
             RANDDOM_DROPING,
             DECIDE_CROSS,
@@ -191,10 +198,12 @@ class MissionFSM
         };
 
     private:
+        MissionParameters parameters_;
         DroneState current_state;
         DyDropState current_drone_state;
         ros::Rate rate;
         int mission_num;
+        bool drop_random;
         bool droping_flag;
         bool droping_second;
         bool yaw_judge;

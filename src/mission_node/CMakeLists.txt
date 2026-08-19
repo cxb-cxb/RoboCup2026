@@ -134,9 +134,14 @@ include_directories(
 add_executable(run_node 
   src/run_node.cpp
   src/MissionFsm.cpp
+  src/MissionParameters.cpp
   src/input.cpp
 )
 target_link_libraries(run_node ${catkin_LIBRARIES})
 
 add_executable(my_serial_node src/my_serial_node.cpp)
 target_link_libraries(my_serial_node ${catkin_LIBRARIES})
+
+install(DIRECTORY launch config
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)

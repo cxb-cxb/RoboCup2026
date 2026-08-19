@@ -1,0 +1,20 @@
+camera:
+  fx: 1092.34009
+  fy: 1088.58832
+  cx: 657.880369
+  cy: 361.681183
+  offset_x: 0.0
+  offset_y: 0.21
+  offset_z: 0.0
+
+control:
+  max_velocity_x: 0.5
+  max_velocity_y: 0.5
+
+drop:
+  height: 1.0
+  gravity: 9.8
+  land_velocity: 0.2
+
+filter:
+  history_duration: 5.0
