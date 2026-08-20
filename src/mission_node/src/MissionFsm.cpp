@@ -59,13 +59,6 @@ MissionFSM::MissionFSM() : rate(20.0)
     goods_num = 2;
     last_target_x=0;
     last_target_y=0;
-    dropped_classes.insert("car");
-    dropped_classes.insert("bridge");
-    dropped_classes.insert("random");
-    dropped_classes.insert("tank");
-    // dropped_classes.push_back("car");
-
-
     //random init
     random_positions_1.clear();
     random_positions_2.clear();  // 新增:初始化第二个点集
@@ -171,75 +164,6 @@ MissionFSM::MissionFSM() : rate(20.0)
     first_4.pose.orientation.z = 0;
     first_4.pose.orientation.w = 1;
     first_points.push_back(first_4);
-    //投货的目标位置
-
-
-
-
-    // 第1个目标点
-    geometry_msgs::PoseStamped target_3;
-    target_3.pose.position.x = 2.72;//1.76;
-    target_3.pose.position.y = 1.08;//-2.55;
-    target_3.pose.position.z = 1.0;
-    //yaw角设置1
-    target_3.pose.orientation.x = 0;
-    target_3.pose.orientation.y = 0;
-    target_3.pose.orientation.z = 0;
-    target_3.pose.orientation.w = 1;
-
-    target_points.push_back(target_3);
-
-    // 第2个目标点
-    geometry_msgs::PoseStamped target_4;
-    target_4.pose.position.x = 2.0;//4.5;
-    target_4.pose.position.y = 3.75;//-1.7;
-    target_4.pose.position.z = 1.0;
-
-    target_4.pose.orientation.x = 0;
-    target_4.pose.orientation.y = 0;
-    target_4.pose.orientation.z = 0;
-    target_4.pose.orientation.w = 1;
-    target_points.push_back(target_4);
-       // 第3个目标点
-    geometry_msgs::PoseStamped target_5;
-    target_5.pose.position.x = -2.25;//2.46;
-
-    target_5.pose.position.y = 1.46;//2.32;
-
-    target_5.pose.position.z = 1.0;
-    //yaw角设置
-    target_5.pose.orientation.x = 0;
-    target_5.pose.orientation.y = 0;
-    target_5.pose.orientation.z = 0;
-    target_5.pose.orientation.w = 1;
-    target_points.push_back(target_5);
-
-    // 第4个目标点
-    geometry_msgs::PoseStamped target_1;
-    target_1.pose.position.x = -0.76;//4.6;
-    target_1.pose.position.y = 3.43;//1.3;
-    target_1.pose.position.z = 1.0;
-
-    //yaw角设置
-    target_1.pose.orientation.x = 0;
-    target_1.pose.orientation.y = 0;
-    target_1.pose.orientation.z = 0;
-    target_1.pose.orientation.w = 1;
-    target_points.push_back(target_1);
-
-
-
-    // 第5个目标点
-    geometry_msgs::PoseStamped target_2;
-    target_2.pose.position.x = 1.85;
-    target_2.pose.position.y = -1.52;
-    target_2.pose.position.z = 1.0;
-    // //yaw角设置
-    target_2.pose.orientation.x = 0;
-    target_2.pose.orientation.y = 0;
-    target_2.pose.orientation.z = 0;
-    target_2.pose.orientation.w = 1;
-    target_points.push_back(target_2);
     // //动态靶标轨迹中心点
     // //降落
     // dynamic_point.pose.position.x = 6.55;
@@ -1968,8 +1892,9 @@ bool MissionFSM::calculateClassBasedMedianAdjustment(double& median_dx, double& 
     }
     
     // 验证当前检测的类别是否为有效目标
-    if (current_detected_class != "bunker" && current_detected_class != "car" && 
-        current_detected_class != "bridge" && current_detected_class != "tant" &&  current_detected_class != "random" && current_detected_class !="tank"){
+    if (current_detected_class != "bunker" && current_detected_class != "car" &&
+        current_detected_class != "bridge" && current_detected_class != "tent" &&
+        current_detected_class != "random" && current_detected_class != "tank") {
         ROS_WARN("Current detected class '%s' is not a valid target", current_detected_class.c_str());
         return false;
     }
