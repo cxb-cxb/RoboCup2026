@@ -1,6 +1,12 @@
 #include "MissionParameters.h"
 
 namespace {
+void restoreDefaultSearchPoints(std::vector<double>& points_x,
+                                std::vector<double>& points_y) {
+  points_x = {-3.0, 3.0, 3.0, -3.0, -3.0, 3.0};
+  points_y = {-3.0, -3.0, 0.0, 0.0, 3.0, 3.0};
+}
+
 template <typename T>
 void restoreIfNotPositive(T& value, const T& default_value,
                           const char* parameter_name) {
@@ -28,15 +34,14 @@ void MissionParameters::load(const ros::NodeHandle& private_nh) {
   private_nh.param("drop/gravity", gravity, gravity);
   private_nh.param("drop/land_velocity", land_velocity, land_velocity);
   private_nh.param("filter/history_duration", history_duration, history_duration);
-  private_nh.param("search/x_min", search_x_min, search_x_min);
-  private_nh.param("search/x_max", search_x_max, search_x_max);
-  private_nh.param("search/y_min", search_y_min, search_y_min);
-  private_nh.param("search/y_max", search_y_max, search_y_max);
   private_nh.param("search/height", search_height, search_height);
-  private_nh.param("search/footprint_x", search_footprint_x, search_footprint_x);
-  private_nh.param("search/footprint_y", search_footprint_y, search_footprint_y);
-  private_nh.param("search/overlap_ratio", search_overlap_ratio, search_overlap_ratio);
   private_nh.param("search/max_passes", max_search_passes, max_search_passes);
+  const bool has_points_x = private_nh.getParam("search/points_x", search_points_x);
+  const bool has_points_y = private_nh.getParam("search/points_y", search_points_y);
+  if (!has_points_x || !has_points_y) {
+    ROS_WARN("Search feature-point arrays are incomplete; using default path");
+    restoreDefaultSearchPoints(search_points_x, search_points_y);
+  }
 
   validate();
   log();
@@ -51,22 +56,11 @@ void MissionParameters::validate() {
   restoreIfNotPositive(gravity, 9.8, "drop/gravity");
   restoreIfNotPositive(land_velocity, 0.2, "drop/land_velocity");
   restoreIfNotPositive(history_duration, 5.0, "filter/history_duration");
-  if (search_x_min >= search_x_max) {
-    ROS_WARN("Invalid search X bounds; using [-4.0, 4.0]");
-    search_x_min = -4.0;
-    search_x_max = 4.0;
-  }
-  if (search_y_min >= search_y_max) {
-    ROS_WARN("Invalid search Y bounds; using [-4.0, 4.0]");
-    search_y_min = -4.0;
-    search_y_max = 4.0;
-  }
   restoreIfNotPositive(search_height, 1.0, "search/height");
-  restoreIfNotPositive(search_footprint_x, 2.0, "search/footprint_x");
-  restoreIfNotPositive(search_footprint_y, 1.5, "search/footprint_y");
-  if (search_overlap_ratio < 0.0 || search_overlap_ratio >= 1.0) {
-    ROS_WARN("Parameter '~search/overlap_ratio' must be in [0, 1); using 0.25");
-    search_overlap_ratio = 0.25;
+  if (search_points_x.empty() || search_points_y.empty() ||
+      search_points_x.size() != search_points_y.size()) {
+    ROS_WARN("Invalid search feature-point arrays; using default path");
+    restoreDefaultSearchPoints(search_points_x, search_points_y);
   }
   restoreIfNotPositive(max_search_passes, 3, "search/max_passes");
 }
@@ -83,10 +77,7 @@ void MissionParameters::log() const {
                   << drop_height << ", gravity=" << gravity << ", land_velocity="
                   << land_velocity << ", time=" << dropTime()
                   << "), history_duration=" << history_duration
-                  << ", search(bounds=[" << search_x_min << ", " << search_x_max
-                  << "] x [" << search_y_min << ", " << search_y_max
-                  << "], height=" << search_height << ", footprint=["
-                  << search_footprint_x << ", " << search_footprint_y
-                  << "], overlap=" << search_overlap_ratio << ", max_passes="
+                  << ", search(points=" << search_points_x.size()
+                  << ", height=" << search_height << ", max_passes="
                   << max_search_passes << ")");
 }
