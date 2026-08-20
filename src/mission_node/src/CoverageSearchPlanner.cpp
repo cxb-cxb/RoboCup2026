@@ -1,56 +1,22 @@
 #include "CoverageSearchPlanner.h"
 
 #include <algorithm>
-#include <cmath>
 #include <limits>
 
-namespace {
-std::vector<double> makeScanLines(double minimum, double maximum,
-                                  double footprint, double step) {
-  std::vector<double> lines;
-  const double first = minimum + footprint * 0.5;
-  const double last = maximum - footprint * 0.5;
-
-  if (first > last) {
-    lines.push_back((minimum + maximum) * 0.5);
-    return lines;
-  }
-
-  for (double value = first; value <= last + 1e-6; value += step) {
-    lines.push_back(std::min(value, last));
-  }
-  if (lines.empty() || std::abs(lines.back() - last) > 1e-6) {
-    lines.push_back(last);
-  }
-  return lines;
-}
-}  // namespace
-
 CoverageSearchPlanner::CoverageSearchPlanner()
-    : x_min_(-4.0),
-      x_max_(4.0),
-      y_min_(-4.0),
-      y_max_(4.0),
+    : points_x_({-3.0, 3.0, 3.0, -3.0, -3.0, 3.0}),
+      points_y_({-3.0, -3.0, 0.0, 0.0, 3.0, 3.0}),
       height_(1.0),
-      footprint_x_(2.0),
-      footprint_y_(1.5),
-      overlap_ratio_(0.25),
       max_passes_(3),
       pass_count_(0),
       current_index_(0) {}
 
-void CoverageSearchPlanner::configure(double x_min, double x_max, double y_min,
-                                      double y_max, double height,
-                                      double footprint_x, double footprint_y,
-                                      double overlap_ratio, int max_passes) {
-  x_min_ = x_min;
-  x_max_ = x_max;
-  y_min_ = y_min;
-  y_max_ = y_max;
+void CoverageSearchPlanner::configure(const std::vector<double>& points_x,
+                                      const std::vector<double>& points_y,
+                                      double height, int max_passes) {
+  points_x_ = points_x;
+  points_y_ = points_y;
   height_ = height;
-  footprint_x_ = footprint_x;
-  footprint_y_ = footprint_y;
-  overlap_ratio_ = overlap_ratio;
   max_passes_ = max_passes;
 }
 
@@ -60,51 +26,9 @@ void CoverageSearchPlanner::generate() {
   current_index_ = 0;
   pass_count_ = 1;
 
-  const double width = x_max_ - x_min_;
-  const double height = y_max_ - y_min_;
-  const double x_step = footprint_x_ * (1.0 - overlap_ratio_);
-  const double y_step = footprint_y_ * (1.0 - overlap_ratio_);
-
-  if (width >= height) {
-    const std::vector<double> rows =
-        makeScanLines(y_min_, y_max_, footprint_y_, y_step);
-    const double left = (x_min_ + footprint_x_ * 0.5 <=
-                         x_max_ - footprint_x_ * 0.5)
-                            ? x_min_ + footprint_x_ * 0.5
-                            : (x_min_ + x_max_) * 0.5;
-    const double right = (x_min_ + footprint_x_ * 0.5 <=
-                          x_max_ - footprint_x_ * 0.5)
-                             ? x_max_ - footprint_x_ * 0.5
-                             : left;
-    for (std::size_t row = 0; row < rows.size(); ++row) {
-      if (row % 2 == 0) {
-        addWaypoint(left, rows[row]);
-        if (right != left) addWaypoint(right, rows[row]);
-      } else {
-        addWaypoint(right, rows[row]);
-        if (right != left) addWaypoint(left, rows[row]);
-      }
-    }
-  } else {
-    const std::vector<double> columns =
-        makeScanLines(x_min_, x_max_, footprint_x_, x_step);
-    const double bottom = (y_min_ + footprint_y_ * 0.5 <=
-                           y_max_ - footprint_y_ * 0.5)
-                              ? y_min_ + footprint_y_ * 0.5
-                              : (y_min_ + y_max_) * 0.5;
-    const double top = (y_min_ + footprint_y_ * 0.5 <=
-                        y_max_ - footprint_y_ * 0.5)
-                           ? y_max_ - footprint_y_ * 0.5
-                           : bottom;
-    for (std::size_t column = 0; column < columns.size(); ++column) {
-      if (column % 2 == 0) {
-        addWaypoint(columns[column], bottom);
-        if (top != bottom) addWaypoint(columns[column], top);
-      } else {
-        addWaypoint(columns[column], top);
-        if (top != bottom) addWaypoint(columns[column], bottom);
-      }
-    }
+  const std::size_t count = std::min(points_x_.size(), points_y_.size());
+  for (std::size_t i = 0; i < count; ++i) {
+    addWaypoint(points_x_[i], points_y_[i]);
   }
 
   visited_.assign(waypoints_.size(), false);

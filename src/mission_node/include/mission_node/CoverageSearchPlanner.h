@@ -11,9 +11,9 @@ class CoverageSearchPlanner {
  public:
   CoverageSearchPlanner();
 
-  void configure(double x_min, double x_max, double y_min, double y_max,
-                 double height, double footprint_x, double footprint_y,
-                 double overlap_ratio, int max_passes);
+  void configure(const std::vector<double>& points_x,
+                 const std::vector<double>& points_y,
+                 double height, int max_passes);
   void generate();
 
   bool empty() const;
@@ -29,14 +29,9 @@ class CoverageSearchPlanner {
   void addWaypoint(double x, double y);
   std::size_t nearestUnvisited(const geometry_msgs::Point& current_position) const;
 
-  double x_min_;
-  double x_max_;
-  double y_min_;
-  double y_max_;
+  std::vector<double> points_x_;
+  std::vector<double> points_y_;
   double height_;
-  double footprint_x_;
-  double footprint_y_;
-  double overlap_ratio_;
   int max_passes_;
   int pass_count_;
   std::size_t current_index_;
