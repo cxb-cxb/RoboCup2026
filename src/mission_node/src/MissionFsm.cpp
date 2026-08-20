@@ -22,11 +22,8 @@ MissionFSM::MissionFSM() : rate(20.0)
     GetParameters(private_nh);
 
     search_planner_.configure(
-        parameters_.search_x_min, parameters_.search_x_max,
-        parameters_.search_y_min, parameters_.search_y_max,
-        parameters_.search_height, parameters_.search_footprint_x,
-        parameters_.search_footprint_y, parameters_.search_overlap_ratio,
-        parameters_.max_search_passes);
+        parameters_.search_points_x, parameters_.search_points_y,
+        parameters_.search_height, parameters_.max_search_passes);
     remaining_classes_ = {"random", "tank", "car", "bridge", "tent", "bunker"};
     completed_drops_ = 0;
     search_adjust_phase_ = 0;
